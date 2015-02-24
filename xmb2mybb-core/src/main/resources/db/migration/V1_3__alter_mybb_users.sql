@@ -1,0 +1,1 @@
+ALTER TABLE mybb_users ADD xmb_uid int(10);
