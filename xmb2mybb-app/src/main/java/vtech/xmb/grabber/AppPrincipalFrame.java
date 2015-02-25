@@ -1,7 +1,5 @@
 package vtech.xmb.grabber;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -14,9 +12,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.services.MigrateForums;
+import vtech.xmb.grabber.db.services.MigrateThreads;
 import vtech.xmb.grabber.db.services.MigrateUsers;
-import vtech.xmb.grabber.db.services.XmbU2UMigrationService;
-import vtech.xmb.grabber.db.services.XmbVotesMigrationService;
 
 @Component("asd")
 public class AppPrincipalFrame extends JFrame implements WindowListener {
@@ -24,17 +21,18 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
   @Autowired
   private ConfigurableApplicationContext context;
 
-//  @Autowired
-//  private XmbU2UMigrationService xmbMigrationService;
-//  
-//  @Autowired
-//  private XmbVotesMigrationService xmbVotesMigrationService;
-  
+  // @Autowired
+  // private XmbU2UMigrationService xmbMigrationService;
+  //
+  // @Autowired
+  // private XmbVotesMigrationService xmbVotesMigrationService;
+
   @Autowired
   private MigrateUsers migrateUsers;
-  
   @Autowired
   private MigrateForums migrateForums;
+  @Autowired
+  private MigrateThreads migrateThreads;
 
   @PostConstruct
   public void test() {
@@ -45,9 +43,10 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
     JButton wczytaj = new JButton("wczytaj");
 
     this.add(wczytaj);
-    
-//    migrateUsers.migrateUsers();
-    migrateForums.migrateForums();
+
+    // migrateUsers.migrateUsers();
+//    migrateForums.migrateForums();
+    migrateThreads.migrateThreads();
   }
 
   @Override

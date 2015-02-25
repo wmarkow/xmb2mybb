@@ -54,8 +54,8 @@ public class MybbUser {
   @Column(name = "usertitle", nullable = false, unique = false)
   public String usertitle;
   
-  @Column(name = "xmb_uid", nullable = false, unique = false)
-  public long xmbUid;
+  @Column(name = "xmb_uid")
+  public Long xmbUid;
   
   @Column(name = "buddylist", nullable = false, unique = false)
   private String buddylist;
