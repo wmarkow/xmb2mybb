@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import vtech.xmb.grabber.db.services.MigrateForums;
 import vtech.xmb.grabber.db.services.MigrateUsers;
 import vtech.xmb.grabber.db.services.XmbU2UMigrationService;
 import vtech.xmb.grabber.db.services.XmbVotesMigrationService;
@@ -23,14 +24,17 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
   @Autowired
   private ConfigurableApplicationContext context;
 
-  @Autowired
-  private XmbU2UMigrationService xmbMigrationService;
-  
-  @Autowired
-  private XmbVotesMigrationService xmbVotesMigrationService;
+//  @Autowired
+//  private XmbU2UMigrationService xmbMigrationService;
+//  
+//  @Autowired
+//  private XmbVotesMigrationService xmbVotesMigrationService;
   
   @Autowired
   private MigrateUsers migrateUsers;
+  
+  @Autowired
+  private MigrateForums migrateForums;
 
   @PostConstruct
   public void test() {
@@ -42,9 +46,8 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
 
     this.add(wczytaj);
     
-//    xmbMigrationService.migrateOutgoingU2u();
-//    xmbVotesMigrationService.migrateVotes();
-    migrateUsers.migrateUsers();
+//    migrateUsers.migrateUsers();
+    migrateForums.migrateForums();
   }
 
   @Override
