@@ -1,6 +1,5 @@
 package vtech.xmb.grabber;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,7 +10,6 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 @Configuration
-//@EnableAutoConfiguration
 @ComponentScan
 public class Application {
 
@@ -24,7 +22,7 @@ public class Application {
   @Bean
   public JpaVendorAdapter jpaVendorAdapter() {
     HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-    jpaVendorAdapter.setShowSql(true);
+    jpaVendorAdapter.setShowSql(false);
     jpaVendorAdapter.setGenerateDdl(true);
     jpaVendorAdapter.setDatabase(Database.MYSQL);
     return jpaVendorAdapter;

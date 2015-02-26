@@ -12,6 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.services.MigrateForums;
+import vtech.xmb.grabber.db.services.MigratePosts;
 import vtech.xmb.grabber.db.services.MigrateThreads;
 import vtech.xmb.grabber.db.services.MigrateUsers;
 
@@ -33,6 +34,8 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
   private MigrateForums migrateForums;
   @Autowired
   private MigrateThreads migrateThreads;
+  @Autowired
+  private MigratePosts migratePosts;
 
   @PostConstruct
   public void test() {
@@ -45,8 +48,9 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
     this.add(wczytaj);
 
     // migrateUsers.migrateUsers();
-//    migrateForums.migrateForums();
-    migrateThreads.migrateThreads();
+    // migrateForums.migrateForums();
+    // migrateThreads.migrateThreads();
+    migratePosts.migratePosts();
   }
 
   @Override
