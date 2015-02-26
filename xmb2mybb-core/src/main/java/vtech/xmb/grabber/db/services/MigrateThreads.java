@@ -89,6 +89,7 @@ public class MigrateThreads {
         mybbThread.xmbtid = xmbThread.tid;
         mybbThread.visible = 1;
         mybbThread.notes = "";
+        mybbThread.poll = 0;
 
         mybbThreadsRepository.save(mybbThread);
       }

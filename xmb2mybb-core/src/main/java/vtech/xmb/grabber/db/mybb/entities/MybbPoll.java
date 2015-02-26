@@ -21,94 +21,26 @@ public class MybbPoll {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "pid")
-  private Long pid;
+  public Long pid;
 
   @Column(name = "tid")
-  private Long tid;
+  public Long tid;
 
   @Column(name = "question")
-  private String question;
+  public String question;
 
   @Column(name = "options")
-  private String options;
+  public String options;
 
   @Column(name = "votes")
-  private String votes;
+  public String votes;
 
   @Column(name = "numoptions")
-  private int numoptions;
+  public int numoptions;
 
   @Column(name = "numvotes")
-  private int numvotes;
+  public int numvotes;
 
   @Column(name = "closed")
-  private int closed;
-
-  public Long getPid() {
-    return pid;
-  }
-
-  public Long getTid() {
-    return tid;
-  }
-
-  public String getQuestion() {
-    return question;
-  }
-
-  public String getOptions() {
-    return options;
-  }
-
-  public String getVotes() {
-    return votes;
-  }
-
-  public int getNumoptions() {
-    return numoptions;
-  }
-
-  public int getNumvotes() {
-    return numvotes;
-  }
-
-  public int getClosed() {
-    return closed;
-  }
-
-  public void update(List<XmbVoteResult> xmbVoteResults) {
-    Map<Long, String> options = new HashMap<Long, String>();
-    Map<Long, Integer> votes = new HashMap<Long, Integer>();
-    List<Long> keys = new ArrayList<Long>();
-
-    for (XmbVoteResult xmbVoteResult : xmbVoteResults) {
-      keys.add(xmbVoteResult.getVoteOptionId());
-      options.put(xmbVoteResult.getVoteOptionId(), xmbVoteResult.getVoteOptionText());
-      votes.put(xmbVoteResult.getVoteOptionId(), xmbVoteResult.getVoteResult());
-    }
-
-    Collections.sort(keys);
-
-    StringBuilder optionsBuilder = new StringBuilder();
-    StringBuilder resultsBuilder = new StringBuilder();
-    int numVotes = 0;
-    for (int q = 0; q < keys.size(); q++) {
-      final long key = keys.get(q);
-
-      optionsBuilder.append(options.get(key));
-      resultsBuilder.append(votes.get(key));
-      numVotes += votes.get(key);
-
-      if (q != keys.size() - 1) {
-        optionsBuilder.append("||~|~||");
-        resultsBuilder.append("||~|~||");
-      }
-    }
-
-    this.options = optionsBuilder.toString();
-    this.votes = resultsBuilder.toString();
-    this.closed = 1;
-    this.numoptions = options.size();
-    this.numvotes = numVotes;
-  }
+  public int closed;
 }

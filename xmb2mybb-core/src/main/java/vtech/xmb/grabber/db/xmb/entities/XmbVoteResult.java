@@ -15,31 +15,15 @@ public class XmbVoteResult implements Serializable {
 
   @Id
   @Column(name = "vote_id", insertable = false, updatable = false)
-  private Long voteId;
+  public Long voteId;
 
   @Id
   @Column(name = "vote_option_id", nullable = false, unique = false)
-  private long voteOptionId;
+  public long voteOptionId;
 
   @Column(name = "vote_option_text", nullable = false, unique = false)
-  private String voteOptionText;
+  public String voteOptionText;
 
   @Column(name = "vote_result", nullable = false, unique = false)
-  private int voteResult;
-
-  public Long getVoteId() {
-    return voteId;
-  }
-
-  public long getVoteOptionId() {
-    return voteOptionId;
-  }
-
-  public String getVoteOptionText() {
-    return voteOptionText;
-  }
-
-  public int getVoteResult() {
-    return voteResult;
-  }
+  public int voteResult;
 }

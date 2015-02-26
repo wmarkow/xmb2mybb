@@ -45,6 +45,9 @@ public class MybbThread implements Serializable {
   @Column(name = "visible")
   public int visible;
   
+  @Column(name = "poll")
+  public long poll;
+  
   @Column(name = "notes")
   public String notes;
 }

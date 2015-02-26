@@ -21,23 +21,11 @@ public class XmbVoteDesc implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "vote_id")
-  private Long voteId;
+  public Long voteId;
 
   @Column(name = "topic_id", nullable = false, unique = false)
-  private long topicId;
+  public long topicId;
 
   @Column(name = "vote_text", nullable = false, unique = false)
-  private String voteText;
-
-  public Long getVoteId() {
-    return voteId;
-  }
-
-  public long getTopicId() {
-    return topicId;
-  }
-
-  public String getVoteText() {
-    return voteText;
-  }
+  public String voteText;
 }
