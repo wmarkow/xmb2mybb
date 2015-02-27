@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import vtech.xmb.grabber.db.services.MigrateForums;
 import vtech.xmb.grabber.db.services.MigratePolls;
 import vtech.xmb.grabber.db.services.MigratePosts;
+import vtech.xmb.grabber.db.services.MigratePrivateMessages;
 import vtech.xmb.grabber.db.services.MigrateThreads;
 import vtech.xmb.grabber.db.services.MigrateUsers;
 
@@ -22,9 +23,6 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
 
   @Autowired
   private ConfigurableApplicationContext context;
-
-  // @Autowired
-  // private XmbU2UMigrationService xmbMigrationService;
 
   @Autowired
   private MigrateUsers migrateUsers;
@@ -36,6 +34,8 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
   private MigratePosts migratePosts;
   @Autowired
   private MigratePolls migratePolls;
+  @Autowired
+  private MigratePrivateMessages migratePrivateMessages;
 
   @PostConstruct
   public void test() {
@@ -51,7 +51,8 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
     // migrateForums.migrateForums();
     // migrateThreads.migrateThreads();
     // migratePosts.migratePosts();
-    migratePolls.migratePolls();
+    // migratePolls.migratePolls();
+    migratePrivateMessages.migrateOutgoingU2u();
   }
 
   @Override

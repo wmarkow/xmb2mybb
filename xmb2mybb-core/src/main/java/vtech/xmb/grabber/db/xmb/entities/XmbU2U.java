@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -16,53 +14,26 @@ public class XmbU2U {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "u2uid")
-  private Long uid;
+  public Long uid;
 
   @Column(name = "type")
-  private String type;
+  public String type;
 
-  @OneToOne
-  @JoinColumn(name = "msgfrom", referencedColumnName = "username")
-  private XmbMember sender;
+  @Column(name = "msgfrom")
+  public String sender;
 
-  @OneToOne
-  @JoinColumn(name = "msgto", referencedColumnName = "username")
-  private XmbMember recipient;
+  @Column(name = "msgto")
+  public String recipient;
+  
+  @Column(name = "owner")
+  public String owner;
 
   @Column(name = "subject")
-  private String subject;
+  public String subject;
 
   @Column(name = "message")
-  private String message;
+  public String message;
 
   @Column(name = "dateline")
-  private Long dateline;
-
-  public Long getUid() {
-    return uid;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public XmbMember getSender() {
-    return sender;
-  }
-
-  public XmbMember getRecipient() {
-    return recipient;
-  }
-
-  public String getSubject() {
-    return subject;
-  }
-
-  public String getMessage() {
-    return message;
-  }
-
-  public Long getDateline() {
-    return dateline;
-  }
+  public Long dateline;
 }

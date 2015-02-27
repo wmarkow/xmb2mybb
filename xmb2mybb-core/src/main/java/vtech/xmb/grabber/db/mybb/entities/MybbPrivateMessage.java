@@ -25,47 +25,82 @@ public class MybbPrivateMessage {
   private Long fromid;
 
   @Column(name = "subject")
-  private String subject;
+  public String subject;
 
   @Column(name = "message")
-  private String message;
+  public String message;
 
   @Column(name = "dateline")
-  private Long dateline;
+  public Long dateline;
 
   @Column(name = "folder")
   private int folder;
-  
+
   @Column(name = "recipients")
   private String recipients;
-  
+
   @Column(name = "status")
   private int status;
 
-  public void setFolderToOutgoing() {
-    this.folder = 2 ;
+  @Column(name = "receipt")
+  private int receipt;
+
+  public void setAsOutgoing(MybbUser mybbSender, MybbUser mybbRecipient) {
+    long mybbSenderId = 0;
+    long mybbRecipientId = 0;
+    if (mybbSender != null) {
+      mybbSenderId = mybbSender.uid;
+    }
+    if (mybbRecipient != null) {
+      mybbRecipientId = mybbRecipient.uid;
+    }
+
+    this.folder = 2;
     this.status = 1;
+
+    this.uid = mybbSenderId;
+    this.fromid = mybbSenderId;
+
+    this.toid = mybbRecipientId;
+    this.recipients = "a:1:{s:2:\"to\";a:1:{i:0;s:4:\"" + mybbRecipientId + "\";}}";
+
+    this.receipt = 0;
   }
 
-  public void setSenderId(long id) {
-    this.uid = id;
-    this.fromid = id;
+  public void setAsIncoming(MybbUser mybbSender, MybbUser mybbRecipient) {
+    long mybbSenderId = 0;
+    long mybbRecipientId = 0;
+    if (mybbSender != null) {
+      mybbSenderId = mybbSender.uid;
+    }
+    if (mybbRecipient != null) {
+      mybbRecipientId = mybbRecipient.uid;
+    }
+
+    this.folder = 1;
+    this.status = 1;
+
+    this.uid = mybbRecipientId;
+    this.toid = mybbRecipientId;
+
+    this.fromid = mybbSenderId;
+
+    this.recipients = "a:1:{s:2:\"to\";a:1:{i:0;s:1:\"" + mybbRecipientId + "\";}}";
+
+    this.receipt = 0;
   }
 
-  public void setRecipientId(long id) {
-    this.toid = id; 
-    this.recipients = "a:1:{s:2:\"to\";a:1:{i:0;s:4:\"" + id + "\";}}";
-  }
+  public void setAsDraft(MybbUser mybbOwner) {
+    long mybbOwnerId = mybbOwner.uid;
 
-  public void setSubject(String subject) {
-    this.subject = subject;
-  }
+    this.folder = 3;
+    this.status = 0;
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
+    this.uid = mybbOwnerId;
+    this.fromid = mybbOwnerId;
 
-  public void setDateline(Long dateline) {
-    this.dateline = dateline;
+    this.toid = 0L;
+    this.recipients = "a:0:{}";
+    this.receipt = 1;
   }
 }
