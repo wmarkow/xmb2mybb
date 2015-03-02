@@ -23,7 +23,7 @@ public class Application {
   public JpaVendorAdapter jpaVendorAdapter() {
     HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
     jpaVendorAdapter.setShowSql(false);
-    jpaVendorAdapter.setGenerateDdl(true);
+    jpaVendorAdapter.setGenerateDdl(false);
     jpaVendorAdapter.setDatabase(Database.MYSQL);
     return jpaVendorAdapter;
   }

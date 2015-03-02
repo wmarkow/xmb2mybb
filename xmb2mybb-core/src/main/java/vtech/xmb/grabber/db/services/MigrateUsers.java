@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
+import vtech.xmb.grabber.db.mybb.entities.MybbUserFields;
+import vtech.xmb.grabber.db.mybb.repositories.MybbUserFieldsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbMember;
 import vtech.xmb.grabber.db.xmb.repositories.XmbMembersRepository;
@@ -18,9 +20,10 @@ public class MigrateUsers {
 
   @Autowired
   private XmbMembersRepository xmbMembersRepository;
-
   @Autowired
   private MybbUsersRepository mybbUsersRepository;
+  @Autowired
+  private MybbUserFieldsRepository mybbUserFieldsRepository;
 
   public void migrateUsers() {
 
@@ -50,7 +53,18 @@ public class MigrateUsers {
       mybbUser.yahoo = xmbMember.yahoo;
       mybbUser.usertitle = xmbMember.customstatus;
 
-      mybbUsersRepository.save(mybbUser);
+      if (isNullOrEmpty(xmbMember.bio) && isNullOrEmpty(xmbMember.location)) {
+        continue;
+      }
+      
+      MybbUser savedUser = mybbUsersRepository.save(mybbUser);
+      MybbUserFields mybbUserFields = new MybbUserFields();
+      mybbUserFields.ufid = savedUser.uid;
+      mybbUserFields.location = xmbMember.location;
+      mybbUserFields.bio = xmbMember.bio;
+      mybbUserFields.sex = "Undisclosed";
+
+      mybbUserFieldsRepository.save(mybbUserFields);
     }
   }
 
@@ -104,5 +118,17 @@ public class MigrateUsers {
     }
 
     return "";
+  }
+  
+  private boolean isNullOrEmpty(String string){
+    if(string == null){
+      return true;
+    }
+    
+    if(string.trim().isEmpty()){
+      return true;
+    }
+    
+    return false;
   }
 }
