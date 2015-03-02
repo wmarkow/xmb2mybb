@@ -47,12 +47,12 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
 
     this.add(wczytaj);
 
-    // migrateUsers.migrateUsers();
+     migrateUsers.migrateUsers();
     // migrateForums.migrateForums();
     // migrateThreads.migrateThreads();
     // migratePosts.migratePosts();
     // migratePolls.migratePolls();
-    migratePrivateMessages.migrateOutgoingU2u();
+//    migratePrivateMessages.migrateOutgoingU2u();
   }
 
   @Override

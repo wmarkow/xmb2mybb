@@ -2,6 +2,9 @@ package vtech.xmb.grabber.db.services;
 
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,7 @@ public class MigrateUsers {
       updateStatus(mybbUser, xmbMember.status);
       mybbUser.aim = xmbMember.aim;
       mybbUser.avatar = xmbMember.avatar;
-      mybbUser.birthday = xmbMember.bday;
+      mybbUser.birthday = deriveMybbBirthDate(xmbMember.bday);
       mybbUser.email = xmbMember.email;
       if (xmbMember.icq.length() < 10) {
         mybbUser.icq = xmbMember.icq;
@@ -78,5 +81,28 @@ public class MigrateUsers {
     }
 
     mybbUser.usergroup = 2;
+  }
+
+  private String deriveMybbBirthDate(String xmbBirthDay) {
+    if (xmbBirthDay == null) {
+      return "";
+    }
+
+    if (xmbBirthDay.trim().isEmpty()) {
+      return "";
+    }
+
+    try {
+      DateTimeFormatter xmbFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+      DateTimeFormatter mybbFormatter = DateTimeFormat.forPattern("dd-M-yyyy");
+
+      DateTime dt = xmbFormatter.parseDateTime(xmbBirthDay.trim());
+
+      return dt.toString(mybbFormatter);
+    } catch (IllegalArgumentException ex) {
+      System.out.println(String.format("Can not convert XMB birthday of %s to MyBB", xmbBirthDay));
+    }
+
+    return "";
   }
 }
