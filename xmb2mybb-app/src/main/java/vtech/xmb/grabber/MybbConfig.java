@@ -31,7 +31,7 @@ public class MybbConfig {
   @ConfigurationProperties(prefix = "spring.datasource.primary")
   @FlywayDataSource
   public DataSource dataSource() {
-    return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").url("jdbc:mysql://localhost/mybb_witek?useUnicode=yes&characterEncoding=UTF-8")
+    return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").url("jdbc:mysql://localhost/mybb?useUnicode=yes&characterEncoding=UTF-8")
         .username("mybbuser").password("mybbuser").build();
   }
 

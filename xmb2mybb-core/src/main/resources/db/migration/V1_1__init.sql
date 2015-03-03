@@ -1,5 +1,5 @@
 CREATE DATABASE  IF NOT EXISTS `mybb` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_polish_ci */;
---USE `mybb`;
+USE `mybb`;
 -- MySQL dump 10.13  Distrib 5.5.41, for debian-linux-gnu (x86_64)
 --
 -- Host: 10.8.0.1    Database: mybb
