@@ -1,6 +1,8 @@
 package vtech.xmb.grabber.db.xmb.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -23,7 +25,7 @@ public class XmbForum implements Serializable {
 
   @Column(name = "name")
   public String name;
-  
+
   @Column(name = "description")
   public String description;
 
@@ -34,11 +36,27 @@ public class XmbForum implements Serializable {
   public int displayorder;
 
   @Column(name = "moderator")
-  public String moderator;
-  
+  private String moderator;
+
   @Column(name = "password")
   public String password;
 
   @Column(name = "fup")
   public long fup;
+
+  public String[] getModerators() {
+    if (moderator == null) {
+      return new String[] {};
+    }
+    String[] splits = moderator.split(",");
+
+    List<String> result = new ArrayList<String>();
+    for (String split : splits) {
+      if (!split.trim().isEmpty()) {
+        result.add(split.trim());
+      }
+    }
+
+    return result.toArray(new String[] {});
+  }
 }

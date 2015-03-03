@@ -12,6 +12,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.services.MigrateForums;
+import vtech.xmb.grabber.db.services.MigrateModeratorPermissions;
 import vtech.xmb.grabber.db.services.MigratePolls;
 import vtech.xmb.grabber.db.services.MigratePosts;
 import vtech.xmb.grabber.db.services.MigratePrivateMessages;
@@ -36,6 +37,8 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
   private MigratePolls migratePolls;
   @Autowired
   private MigratePrivateMessages migratePrivateMessages;
+  @Autowired
+  private MigrateModeratorPermissions migrateModeratorPermissions;
 
   @PostConstruct
   public void test() {
@@ -47,12 +50,13 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
 
     this.add(wczytaj);
 
-     migrateUsers.migrateUsers();
-    // migrateForums.migrateForums();
-    // migrateThreads.migrateThreads();
-    // migratePosts.migratePosts();
-    // migratePolls.migratePolls();
-//    migratePrivateMessages.migrateOutgoingU2u();
+    migrateUsers.migrateUsers();
+    migrateForums.migrateForums();
+    migrateModeratorPermissions.migrateModeratorPermissions();
+    migrateThreads.migrateThreads();
+    migratePosts.migratePosts();
+    migratePolls.migratePolls();
+    migratePrivateMessages.migrateOutgoingU2u();
   }
 
   @Override

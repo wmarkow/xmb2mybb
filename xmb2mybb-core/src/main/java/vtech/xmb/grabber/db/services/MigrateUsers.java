@@ -53,11 +53,12 @@ public class MigrateUsers {
       mybbUser.yahoo = xmbMember.yahoo;
       mybbUser.usertitle = xmbMember.customstatus;
 
+      MybbUser savedUser = mybbUsersRepository.save(mybbUser);
+      
       if (isNullOrEmpty(xmbMember.bio) && isNullOrEmpty(xmbMember.location)) {
         continue;
       }
       
-      MybbUser savedUser = mybbUsersRepository.save(mybbUser);
       MybbUserFields mybbUserFields = new MybbUserFields();
       mybbUserFields.ufid = savedUser.uid;
       mybbUserFields.location = xmbMember.location;
