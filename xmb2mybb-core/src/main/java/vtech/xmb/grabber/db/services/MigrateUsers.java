@@ -46,6 +46,7 @@ public class MigrateUsers {
       mybbUser.password = xmbMember.password;
       mybbUser.regdate = xmbMember.regdate;
       mybbUser.lastvisit = xmbMember.lastvisit;
+      mybbUser.lastactive = xmbMember.lastvisit;
       mybbUser.signature = xmbMember.sig;
       mybbUser.username = xmbMember.username;
       mybbUser.website = xmbMember.site;

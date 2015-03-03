@@ -33,6 +33,9 @@ public class MybbUser {
   @Column(name = "lastvisit", nullable = false, unique = false)
   public long lastvisit;
   
+  @Column(name = "lastactive", nullable = false, unique = false)
+  public long lastactive;
+  
   @Column(name = "website", nullable = false, unique = false)
   public String website;
   
