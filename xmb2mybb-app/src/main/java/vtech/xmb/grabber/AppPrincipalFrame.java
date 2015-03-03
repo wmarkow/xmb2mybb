@@ -56,7 +56,7 @@ public class AppPrincipalFrame extends JFrame implements WindowListener {
     migrateThreads.migrateThreads();
     migratePosts.migratePosts();
     migratePolls.migratePolls();
-    migratePrivateMessages.migrateOutgoingU2u();
+    migratePrivateMessages.migrateU2Us();
   }
 
   @Override

@@ -25,7 +25,7 @@ public class MigratePrivateMessages {
   @Autowired
   private MybbPrivateMessagesRepository mybbPrivateMessagesRepository;
 
-  public void migrateOutgoingU2u() {
+  public void migrateU2Us() {
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
