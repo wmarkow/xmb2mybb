@@ -1,5 +1,6 @@
 package vtech.xmb.grabber.db.services;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -53,13 +54,14 @@ public class MigrateUsers {
       mybbUser.xmbUid = xmbMember.uid;
       mybbUser.yahoo = xmbMember.yahoo;
       mybbUser.usertitle = xmbMember.customstatus;
+      mybbUser.regip = encodeRegIp(xmbMember);
 
       MybbUser savedUser = mybbUsersRepository.save(mybbUser);
-      
+
       if (isNullOrEmpty(xmbMember.bio) && isNullOrEmpty(xmbMember.location)) {
         continue;
       }
-      
+
       MybbUserFields mybbUserFields = new MybbUserFields();
       mybbUserFields.ufid = savedUser.uid;
       mybbUserFields.location = xmbMember.location;
@@ -121,16 +123,70 @@ public class MigrateUsers {
 
     return "";
   }
-  
-  private boolean isNullOrEmpty(String string){
-    if(string == null){
+
+  private boolean isNullOrEmpty(String string) {
+    if (string == null) {
       return true;
     }
-    
-    if(string.trim().isEmpty()){
+
+    if (string.trim().isEmpty()) {
       return true;
     }
-    
+
     return false;
+  }
+
+  private byte[] encodeRegIp(XmbMember xmbMember) {
+    String regIp = xmbMember.regip;
+
+    if (regIp == null) {
+      return null;
+    }
+
+    byte[] result = { 0, 0, 0, 0 };
+
+    // ::ffff:213.25.2
+    if (regIp.startsWith("::ffff:")) {
+      // it is a IPv6 address and it is incorrectly stored in XMB as in XMB
+      // regip's length is restricted to 15 characters
+      System.out.println(String.format(
+          "XMB user with id %s and username %s has an incorrect registration IPv6 address with value %s. Will migrate a 0.0.0.0 as registration ip for that user.",
+          xmbMember.uid, xmbMember.username, xmbMember.regip));
+      return result;
+    }
+
+    if (regIp.contains(",")) {
+      final int index = regIp.indexOf(",");
+      final String truncatedRegIp = regIp.substring(0, index);
+      System.out.println(String.format("XMB user with id %s and username %s has an incorrect registration IP address with value %s. It will be truncated to %s",
+          xmbMember.uid, xmbMember.username, regIp, truncatedRegIp));
+
+      regIp = truncatedRegIp;
+    }
+
+    if (regIp.equals("unknown")) {
+      System.out.println(String.format("XMB user with id %s and username %s has an unknown registration IP address. Will migrate a 0.0.0.0 as registration ip for that user.",
+          xmbMember.uid, xmbMember.username));
+      return result;
+    }
+
+    String[] splits = regIp.split("\\.");
+
+    if (splits.length != 4) {
+      System.out.println(String.format("XMB user with id %s and username %s has an incorrect IPv6 address with value %s.", xmbMember.uid, xmbMember.username,
+          xmbMember.regip));
+      return null;
+    }
+
+    for (int q = 0; q < 4; q++) {
+      String split = splits[q];
+
+      ByteBuffer b = ByteBuffer.allocate(4);
+      b.putInt(Integer.valueOf(split));
+
+      result[q] = b.get(3);
+    }
+
+    return result;
   }
 }
