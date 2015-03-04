@@ -7,17 +7,16 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.XmbForumsCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbForum;
-import vtech.xmb.grabber.db.xmb.repositories.XmbForumsRepository;
 
 @Service
 public class MigrateForums {
 
   @Autowired
-  private XmbForumsRepository xmbForumsRepository;
-
+  private XmbForumsCache xmbForumsCache;
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
 
@@ -28,10 +27,7 @@ public class MigrateForums {
   }
 
   private void migrateForumsFirstStage() {
-
-    List<XmbForum> xmbForums = (List<XmbForum>) xmbForumsRepository.findAll();
-
-    for (XmbForum xmbForum : xmbForums) {
+    for (XmbForum xmbForum : xmbForumsCache.findAll()) {
       MybbForum mybbForum = new MybbForum();
 
       mybbForum.setDefaults();
@@ -81,16 +77,16 @@ public class MigrateForums {
 
       List<Long> parentList = new ArrayList<Long>();
       findParentList(parentList, mybbForums, mybbForum);
-     
+
       Collections.reverse(parentList);
       StringBuilder sb = new StringBuilder();
-      for(int q = 0 ; q < parentList.size() ; q ++){
+      for (int q = 0; q < parentList.size(); q++) {
         sb.append(parentList.get(q));
-        if(q < parentList.size() - 1){
+        if (q < parentList.size() - 1) {
           sb.append(",");
         }
       }
-      
+
       mybbForum.parentlist = sb.toString();
       mybbForumsRepository.save(mybbForum);
     }

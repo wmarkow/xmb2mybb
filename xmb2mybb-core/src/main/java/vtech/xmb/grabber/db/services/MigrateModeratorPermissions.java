@@ -6,19 +6,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
+import vtech.xmb.grabber.db.cache.XmbForumsCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbModerator;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbModeratorsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbForum;
-import vtech.xmb.grabber.db.xmb.repositories.XmbForumsRepository;
 
 @Service
 public class MigrateModeratorPermissions {
 
   @Autowired
-  private XmbForumsRepository xmbForumsRepository;
+  private XmbForumsCache xmbForumsCache;
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
   @Autowired
@@ -27,10 +27,9 @@ public class MigrateModeratorPermissions {
   private MybbModeratorsRepository mybbModeratorsRepository;
 
   public void migrateModeratorPermissions() {
-    List<XmbForum> xmbForums = (List<XmbForum>) xmbForumsRepository.findAll();
     List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
 
-    for (XmbForum xmbForum : xmbForums) {
+    for (XmbForum xmbForum : xmbForumsCache.findAll()) {
       MybbForum mybbForum = findMybbForum(mybbForums, xmbForum.fid);
 
       for (String moderator : xmbForum.getModerators()) {
