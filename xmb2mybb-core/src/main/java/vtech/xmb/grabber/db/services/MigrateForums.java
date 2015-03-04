@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.XmbForumsCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
@@ -19,11 +20,15 @@ public class MigrateForums {
   private XmbForumsCache xmbForumsCache;
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
+  @Autowired
+  private MybbForumsCache mybbForumsCache;
 
   public void migrateForums() {
     migrateForumsFirstStage();
     fixParents();
     fixParentsList();
+
+    mybbForumsCache.evictCache();
   }
 
   private void migrateForumsFirstStage() {

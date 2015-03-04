@@ -8,12 +8,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
-import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbThreadsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbPost;
@@ -28,7 +28,7 @@ public class MigratePosts {
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
   @Autowired
-  private MybbForumsRepository mybbForumsRepository;
+  private MybbForumsCache mybbForumsCache;
   @Autowired
   private MybbUsersCache mybbUsersCache;
 
@@ -41,7 +41,6 @@ public class MigratePosts {
     int pageNumber = 0;
     boolean shouldContinue = true;
 
-    List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
     List<MybbThread> mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
@@ -59,11 +58,11 @@ public class MigratePosts {
         MybbPost mybbPost = new MybbPost();
 
         // derive forum id
-        final Long forumId = findForumId(mybbForums, xmbPost);
-        if (forumId == null) {
+        final MybbForum mybbForum = mybbForumsCache.findByXmbPost(xmbPost);
+        if (mybbForum == null) {
           continue;
         }
-        mybbPost.fid = forumId;
+        mybbPost.fid = mybbForum.fid;
 
         // derive thread id
         final Long threadId = findThreadId(mybbThreads, xmbPost);
@@ -102,23 +101,6 @@ public class MigratePosts {
       }
       pageRequest = pageRequest.next();
     }
-  }
-
-  private Long findForumId(List<MybbForum> mybbForums, XmbPost xmbPost) {
-    for (MybbForum mybbForum : mybbForums) {
-      if (mybbForum.xmbfid == null) {
-        continue;
-      }
-
-      if (mybbForum.xmbfid.equals(xmbPost.fid)) {
-        return mybbForum.fid;
-      }
-    }
-
-    System.out.println(String.format("Can not find a forum for XMB post with pid=%s tid=%s, fid=%s, subject=%s", xmbPost.pid, xmbPost.tid, xmbPost.fid,
-        xmbPost.subject));
-
-    return null;
   }
 
   private Long findThreadId(List<MybbThread> mybbThreads, XmbPost xmbPost) {

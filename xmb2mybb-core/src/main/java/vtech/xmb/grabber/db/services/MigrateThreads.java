@@ -8,11 +8,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
-import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbThreadsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbThread;
 import vtech.xmb.grabber.db.xmb.repositories.XmbThreadsRepository;
@@ -25,7 +25,7 @@ public class MigrateThreads {
   @Autowired
   private MybbThreadsRepository mybbThreadsRepository;
   @Autowired
-  private MybbForumsRepository mybbForumsRepository;
+  private MybbForumsCache mybbForumsCache;
   @Autowired
   private MybbUsersCache mybbUsersCache;
 
@@ -37,8 +37,6 @@ public class MigrateThreads {
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
-
-    List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
@@ -59,11 +57,11 @@ public class MigrateThreads {
         } else {
           mybbThread.closed = 0;
         }
-        final Long forumId = findForumId(mybbForums, xmbThread);
-        if (forumId == null) {
+        final MybbForum mybbForum = mybbForumsCache.findByXmbThread(xmbThread);
+        if (mybbForum == null) {
           continue;
         }
-        mybbThread.fid = forumId;
+        mybbThread.fid = mybbForum.fid;
         mybbThread.sticky = xmbThread.topped;
 
         if (xmbThread.subject.length() > 120) {
@@ -93,21 +91,5 @@ public class MigrateThreads {
       }
       pageRequest = pageRequest.next();
     }
-  }
-
-  private Long findForumId(List<MybbForum> mybbForums, XmbThread xmbThread) {
-    for (MybbForum mybbForum : mybbForums) {
-      if (mybbForum.xmbfid == null) {
-        continue;
-      }
-
-      if (mybbForum.xmbfid.equals(xmbThread.fid)) {
-        return mybbForum.fid;
-      }
-    }
-
-    System.out.println(String.format("Can not find a forum for XMB thread with tid=%s, fid=%s, subject=%s", xmbThread.tid, xmbThread.fid, xmbThread.subject));
-
-    return null;
   }
 }

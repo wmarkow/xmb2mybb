@@ -1,16 +1,14 @@
 package vtech.xmb.grabber.db.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.cache.XmbForumsCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbModerator;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
-import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbModeratorsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbForum;
 
@@ -20,17 +18,15 @@ public class MigrateModeratorPermissions {
   @Autowired
   private XmbForumsCache xmbForumsCache;
   @Autowired
-  private MybbForumsRepository mybbForumsRepository;
+  private MybbForumsCache mybbForumsCache;
   @Autowired
   private MybbUsersCache mybbUsersCache;
   @Autowired
   private MybbModeratorsRepository mybbModeratorsRepository;
 
   public void migrateModeratorPermissions() {
-    List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
-
     for (XmbForum xmbForum : xmbForumsCache.findAll()) {
-      MybbForum mybbForum = findMybbForum(mybbForums, xmbForum.fid);
+      MybbForum mybbForum = mybbForumsCache.findByXmbForum(xmbForum);
 
       for (String moderator : xmbForum.getModerators()) {
         MybbUser mybbUser = mybbUsersCache.findUserByName(moderator);
@@ -49,20 +45,6 @@ public class MigrateModeratorPermissions {
         mybbModeratorsRepository.save(mybbModerator);
       }
     }
-  }
-
-  private MybbForum findMybbForum(List<MybbForum> mybbForums, long xmbForumId) {
-    for (MybbForum mybbForum : mybbForums) {
-      if (mybbForum.xmbfid == null) {
-        continue;
-      }
-
-      if (mybbForum.xmbfid.equals(xmbForumId)) {
-        return mybbForum;
-      }
-    }
-
-    return null;
   }
 
   private void applyDefaults(MybbModerator mybbModerator) {
