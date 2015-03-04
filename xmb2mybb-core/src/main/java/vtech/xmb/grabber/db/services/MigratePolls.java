@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.cache.MybbThreadsCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbPoll;
 import vtech.xmb.grabber.db.mybb.entities.MybbPollVote;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
@@ -28,18 +29,18 @@ public class MigratePolls {
   @Autowired
   private XmbVoteResultRepository xmbVoteResultRepository;
   @Autowired
-  private MybbThreadsRepository mybbThreadsRepository;
+  private MybbThreadsCache mybbThreadsCache;
 
   @Autowired
   private MybbPollsRepository mybbPollsRepository;
   @Autowired
   private MybbPollVotesRepository mybbPollVotesRepository;
+  @Autowired
+  private MybbThreadsRepository mybbThreadsRepository;
 
   public void migratePolls() {
     List<XmbVoteDesc> xmbVoteDescs = (List<XmbVoteDesc>) xmbVoteDescRepository.findAll();
     System.out.println(String.format("Znaleziono %s ankiet", xmbVoteDescs.size()));
-
-    List<MybbThread> mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
 
     for (XmbVoteDesc xmbVoteDesc : xmbVoteDescs) {
       List<XmbVoteResult> xmbVoteResults = xmbVoteResultRepository.findByVoteId(xmbVoteDesc.voteId);
@@ -52,12 +53,12 @@ public class MigratePolls {
 
       MybbPoll poll = new MybbPoll();
       update(poll, xmbVoteResults);
-      final Long threadId = findThreadId(mybbThreads, xmbVoteDesc);
+      final MybbThread mybbThread = mybbThreadsCache.findByXmbVoteDesc(xmbVoteDesc);
 
-      if (threadId == null) {
+      if (mybbThread == null) {
         continue;
       }
-      poll.tid = findThreadId(mybbThreads, xmbVoteDesc);
+      poll.tid = mybbThread.tid;
       poll.question = xmbVoteDesc.voteText;
       MybbPoll savedPoll = mybbPollsRepository.save(poll);
 
@@ -66,64 +67,42 @@ public class MigratePolls {
       mybbPollVotesRepository.save(mybbPollVotes);
 
       // update the correct thread with a poll id
-      MybbThread mybbThreadWithPoll = mybbThreadsRepository.findOne(threadId);
-      mybbThreadWithPoll.poll = savedPoll.pid;
-      mybbThreadsRepository.save(mybbThreadWithPoll);
+      mybbThread.poll = savedPoll.pid;
+      mybbThreadsRepository.save(mybbThread);
     }
+
+    // evict the cache
+    mybbThreadsCache.evictCache();
   }
 
   private void update(MybbPoll poll, List<XmbVoteResult> xmbVoteResults) {
     Map<Long, String> options = new HashMap<Long, String>();
-    // Map<Long, Integer> votes = new HashMap<Long, Integer>();
     List<Long> keys = new ArrayList<Long>();
 
     for (XmbVoteResult xmbVoteResult : xmbVoteResults) {
       keys.add(xmbVoteResult.voteOptionId);
       options.put(xmbVoteResult.voteOptionId, xmbVoteResult.voteOptionText);
-      // votes.put(xmbVoteResult.getVoteOptionId(),
-      // xmbVoteResult.getVoteResult());
     }
 
     Collections.sort(keys);
 
     StringBuilder optionsBuilder = new StringBuilder();
-    // StringBuilder resultsBuilder = new StringBuilder();
     int numVotes = 0;
     for (int q = 0; q < keys.size(); q++) {
       final long key = keys.get(q);
 
       optionsBuilder.append(options.get(key));
-      // resultsBuilder.append(votes.get(key));
-      // numVotes += votes.get(key);
 
       if (q != keys.size() - 1) {
         optionsBuilder.append("||~|~||");
-        // resultsBuilder.append("||~|~||");
       }
     }
 
     poll.options = optionsBuilder.toString();
-    poll.votes = "";// resultsBuilder.toString();
+    poll.votes = "";
     poll.closed = 1;
     poll.numoptions = options.size();
     poll.numvotes = numVotes;
-  }
-
-  private Long findThreadId(List<MybbThread> mybbThreads, XmbVoteDesc xmbVoteDesc) {
-    for (MybbThread mybbThread : mybbThreads) {
-      if (mybbThread.xmbtid == null) {
-        continue;
-      }
-
-      if (mybbThread.xmbtid.equals(xmbVoteDesc.topicId)) {
-        return mybbThread.tid;
-      }
-    }
-
-    System.out.println(String.format("Can not find a thread for XMB Vote Desc with voteId=%s tid=%s, voteText=%s", xmbVoteDesc.voteId, xmbVoteDesc.topicId,
-        xmbVoteDesc.voteText));
-
-    return null;
   }
 
   private List<MybbPollVote> preparePollVotes(MybbPoll savedPoll, List<XmbVoteResult> xmbVoteResults) {

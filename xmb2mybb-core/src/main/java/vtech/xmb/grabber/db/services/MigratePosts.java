@@ -9,13 +9,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.cache.MybbForumsCache;
+import vtech.xmb.grabber.db.cache.MybbThreadsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
-import vtech.xmb.grabber.db.mybb.repositories.MybbThreadsRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbPost;
 import vtech.xmb.grabber.db.xmb.repositories.XmbPostsRepository;
 
@@ -24,7 +24,7 @@ public class MigratePosts {
   @Autowired
   private XmbPostsRepository xmbPostsRepository;
   @Autowired
-  private MybbThreadsRepository mybbThreadsRepository;
+  private MybbThreadsCache mybbThreadsCache;
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
   @Autowired
@@ -40,8 +40,6 @@ public class MigratePosts {
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
-
-    List<MybbThread> mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
@@ -65,11 +63,11 @@ public class MigratePosts {
         mybbPost.fid = mybbForum.fid;
 
         // derive thread id
-        final Long threadId = findThreadId(mybbThreads, xmbPost);
-        if (threadId == null) {
+        final MybbThread mybbThread = mybbThreadsCache.findByXmbPost(xmbPost);
+        if (mybbThread == null) {
           continue;
         }
-        mybbPost.tid = threadId;
+        mybbPost.tid = mybbThread.tid;
 
         if (xmbPost.subject.length() > 120) {
           System.out.println(String.format("XMB post pid=%s and tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters",
@@ -101,22 +99,5 @@ public class MigratePosts {
       }
       pageRequest = pageRequest.next();
     }
-  }
-
-  private Long findThreadId(List<MybbThread> mybbThreads, XmbPost xmbPost) {
-    for (MybbThread mybbThread : mybbThreads) {
-      if (mybbThread.xmbtid == null) {
-        continue;
-      }
-
-      if (mybbThread.xmbtid.equals(xmbPost.tid)) {
-        return mybbThread.tid;
-      }
-    }
-
-    System.out.println(String.format("Can not find a thread for XMB post with pid=%s tid=%s, fid=%s, subject=%s", xmbPost.pid, xmbPost.tid, xmbPost.fid,
-        xmbPost.subject));
-
-    return null;
   }
 }
