@@ -9,6 +9,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.entities.MybbUserFields;
 import vtech.xmb.grabber.db.mybb.repositories.MybbUserFieldsRepository;
@@ -25,6 +26,8 @@ public class MigrateUsers {
   private MybbUsersRepository mybbUsersRepository;
   @Autowired
   private MybbUserFieldsRepository mybbUserFieldsRepository;
+  @Autowired
+  private MybbUsersCache mybbUsersCache;
 
   public void migrateUsers() {
 
@@ -70,6 +73,8 @@ public class MigrateUsers {
 
       mybbUserFieldsRepository.save(mybbUserFields);
     }
+
+    mybbUsersCache.evictCache();
   }
 
   private void updateStatus(MybbUser mybbUser, String xmbStatus) {
@@ -149,23 +154,27 @@ public class MigrateUsers {
     if (regIp.startsWith("::ffff:")) {
       // it is a IPv6 address and it is incorrectly stored in XMB as in XMB
       // regip's length is restricted to 15 characters
-      System.out.println(String.format(
-          "XMB user with id %s and username %s has an incorrect registration IPv6 address with value %s. Will migrate a 0.0.0.0 as registration ip for that user.",
-          xmbMember.uid, xmbMember.username, xmbMember.regip));
+      System.out
+          .println(String
+              .format(
+                  "XMB user with id %s and username %s has an incorrect registration IPv6 address with value %s. Will migrate a 0.0.0.0 as registration ip for that user.",
+                  xmbMember.uid, xmbMember.username, xmbMember.regip));
       return result;
     }
 
     if (regIp.contains(",")) {
       final int index = regIp.indexOf(",");
       final String truncatedRegIp = regIp.substring(0, index);
-      System.out.println(String.format("XMB user with id %s and username %s has an incorrect registration IP address with value %s. It will be truncated to %s",
-          xmbMember.uid, xmbMember.username, regIp, truncatedRegIp));
+      System.out.println(String.format(
+          "XMB user with id %s and username %s has an incorrect registration IP address with value %s. It will be truncated to %s", xmbMember.uid,
+          xmbMember.username, regIp, truncatedRegIp));
 
       regIp = truncatedRegIp;
     }
 
     if (regIp.equals("unknown")) {
-      System.out.println(String.format("XMB user with id %s and username %s has an unknown registration IP address. Will migrate a 0.0.0.0 as registration ip for that user.",
+      System.out.println(String.format(
+          "XMB user with id %s and username %s has an unknown registration IP address. Will migrate a 0.0.0.0 as registration ip for that user.",
           xmbMember.uid, xmbMember.username));
       return result;
     }

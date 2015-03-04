@@ -5,12 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbModerator;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbModeratorsRepository;
-import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbForum;
 import vtech.xmb.grabber.db.xmb.repositories.XmbForumsRepository;
 
@@ -22,20 +22,19 @@ public class MigrateModeratorPermissions {
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
   @Autowired
-  private MybbUsersRepository mybbUsersRepository;
+  private MybbUsersCache mybbUsersCache;
   @Autowired
   private MybbModeratorsRepository mybbModeratorsRepository;
 
   public void migrateModeratorPermissions() {
     List<XmbForum> xmbForums = (List<XmbForum>) xmbForumsRepository.findAll();
     List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
-    List<MybbUser> mybbUsers = (List<MybbUser>) mybbUsersRepository.findAll();
 
     for (XmbForum xmbForum : xmbForums) {
       MybbForum mybbForum = findMybbForum(mybbForums, xmbForum.fid);
 
       for (String moderator : xmbForum.getModerators()) {
-        MybbUser mybbUser = findUser(mybbUsers, moderator);
+        MybbUser mybbUser = mybbUsersCache.findUserByName(moderator);
 
         if (mybbUser == null) {
           System.out.println(String.format("Could not find a user for username = \"%s\". Moderator rights will not be migrated.", moderator));
@@ -61,16 +60,6 @@ public class MigrateModeratorPermissions {
 
       if (mybbForum.xmbfid.equals(xmbForumId)) {
         return mybbForum;
-      }
-    }
-
-    return null;
-  }
-
-  private MybbUser findUser(List<MybbUser> mybbUsers, String username) {
-    for (MybbUser mybbUser : mybbUsers) {
-      if (mybbUser.username.equals(username)) {
-        return mybbUser;
       }
     }
 

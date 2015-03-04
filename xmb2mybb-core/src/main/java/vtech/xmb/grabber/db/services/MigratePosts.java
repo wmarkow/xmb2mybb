@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
@@ -15,9 +16,7 @@ import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.mybb.repositories.MybbThreadsRepository;
-import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbPost;
-import vtech.xmb.grabber.db.xmb.entities.XmbThread;
 import vtech.xmb.grabber.db.xmb.repositories.XmbPostsRepository;
 
 @Service
@@ -31,7 +30,7 @@ public class MigratePosts {
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
   @Autowired
-  private MybbUsersRepository mybbUsersRepository;
+  private MybbUsersCache mybbUsersCache;
 
   public void migratePosts() {
     migratePostsFirstStage();
@@ -44,7 +43,6 @@ public class MigratePosts {
 
     List<MybbForum> mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
     List<MybbThread> mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
-    List<MybbUser> mybbUsers = (List<MybbUser>) mybbUsersRepository.findAll();
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
@@ -85,7 +83,7 @@ public class MigratePosts {
         mybbPost.dateline = xmbPost.dateline;
         mybbPost.message = xmbPost.message;
 
-        final MybbUser mybbUser = findUserByName(mybbUsers, xmbPost.author);
+        final MybbUser mybbUser = mybbUsersCache.findUserByName(xmbPost.author);
         if (mybbUser == null) {
           mybbPost.uid = 0L;
           mybbPost.username = xmbPost.author;
@@ -136,16 +134,6 @@ public class MigratePosts {
 
     System.out.println(String.format("Can not find a thread for XMB post with pid=%s tid=%s, fid=%s, subject=%s", xmbPost.pid, xmbPost.tid, xmbPost.fid,
         xmbPost.subject));
-
-    return null;
-  }
-
-  private MybbUser findUserByName(List<MybbUser> mybbUsers, String username) {
-    for (MybbUser mybbUser : mybbUsers) {
-      if (mybbUser.username.equals(username)) {
-        return mybbUser;
-      }
-    }
 
     return null;
   }

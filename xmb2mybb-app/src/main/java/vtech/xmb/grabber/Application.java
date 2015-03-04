@@ -1,6 +1,7 @@
 package vtech.xmb.grabber;
 
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -9,14 +10,17 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import vtech.xmb.grabber.db.services.MigrateAll;
+
 @Configuration
 @ComponentScan
 public class Application {
 
   public static void main(String[] args) {
-    SpringApplicationBuilder builder = new SpringApplicationBuilder(Application.class);
-    builder.headless(false);
-    builder.run(args);
+    ApplicationContext ctx = SpringApplication.run(Application.class, args);
+
+    MigrateAll migrateAll = ctx.getBean(MigrateAll.class);
+    migrateAll.migrate();
   }
 
   @Bean

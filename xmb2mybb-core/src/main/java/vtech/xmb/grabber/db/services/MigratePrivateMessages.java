@@ -8,10 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbPrivateMessage;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPrivateMessagesRepository;
-import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 import vtech.xmb.grabber.db.xmb.entities.XmbU2U;
 import vtech.xmb.grabber.db.xmb.repositories.XmbU2URepository;
 
@@ -21,7 +21,7 @@ public class MigratePrivateMessages {
   @Autowired
   private XmbU2URepository xmbU2uRepository;
   @Autowired
-  private MybbUsersRepository mybbUsersRepository;
+  private MybbUsersCache mybbUsersCache;
   @Autowired
   private MybbPrivateMessagesRepository mybbPrivateMessagesRepository;
 
@@ -29,8 +29,6 @@ public class MigratePrivateMessages {
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
-
-    List<MybbUser> mybbUsers = (List<MybbUser>) mybbUsersRepository.findAll();
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
@@ -46,9 +44,9 @@ public class MigratePrivateMessages {
       }
 
       for (XmbU2U xmbU2u : xmbU2Us) {
-        MybbUser mybbSender = findUser(mybbUsers, xmbU2u.sender);
-        MybbUser mybbRecipient = findUser(mybbUsers, xmbU2u.recipient);
-        MybbUser mybbOwner = findUser(mybbUsers, xmbU2u.owner);
+        MybbUser mybbSender = mybbUsersCache.findUserByName(xmbU2u.sender);
+        MybbUser mybbRecipient = mybbUsersCache.findUserByName(xmbU2u.recipient);
+        MybbUser mybbOwner = mybbUsersCache.findUserByName(xmbU2u.owner);
 
         if (mybbOwner == null) {
           continue;
@@ -74,17 +72,5 @@ public class MigratePrivateMessages {
 
       pageRequest = pageRequest.next();
     }
-  }
-
-  private MybbUser findUser(List<MybbUser> mybbUsers, String username) {
-    for (MybbUser mybbUser : mybbUsers) {
-      if (mybbUser.username.equals(username)) {
-        return mybbUser;
-      }
-    }
-
-    System.out.println(String.format("Nie można znależć MybbUser dla username = %s", username));
-
-    return null;
   }
 }
