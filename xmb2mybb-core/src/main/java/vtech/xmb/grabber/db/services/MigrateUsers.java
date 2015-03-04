@@ -9,7 +9,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
+import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.entities.MybbUserFields;
 import vtech.xmb.grabber.db.mybb.repositories.MybbUserFieldsRepository;

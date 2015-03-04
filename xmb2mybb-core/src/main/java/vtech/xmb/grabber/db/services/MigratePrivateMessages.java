@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import vtech.xmb.grabber.db.mybb.cache.MybbUsersCache;
+import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.mybb.entities.MybbPrivateMessage;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPrivateMessagesRepository;

@@ -1,14 +1,14 @@
-package vtech.xmb.grabber.db.mybb.cache;
+package vtech.xmb.grabber.db.cache;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 
-@Repository
+@Component
 public class MybbUsersCache {
 
   @Autowired
