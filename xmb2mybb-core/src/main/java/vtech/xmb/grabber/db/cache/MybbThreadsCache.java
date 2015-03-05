@@ -1,6 +1,8 @@
 package vtech.xmb.grabber.db.cache;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,48 +20,43 @@ public class MybbThreadsCache {
   @Autowired
   private MybbThreadsRepository mybbThreadsRepository;
 
-  private volatile List<MybbThread> mybbThreads = null;
+  private volatile Map<Long, MybbThread> byXmbIdThreadsMap = null;
 
-  public synchronized List<MybbThread> findAll() {
-    if (mybbThreads == null) {
-      LOGGER.warn(String.format("MybbThreadsRepository.findAll()"));
+  public MybbThread findByXmbVoteDesc(XmbVoteDesc xmbVoteDesc) {
+    return getByXmbIdThreadsMap().get(xmbVoteDesc.topicId);
+  }
 
-      mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
-    }
-
-    return mybbThreads;
+  public MybbThread findByXmbPost(XmbPost xmbPost) {
+    return getByXmbIdThreadsMap().get(xmbPost.tid);
   }
 
   public synchronized void evictCache() {
     LOGGER.info(String.format("Evicting the MybbThreadsCache"));
-    mybbThreads = null;
+    byXmbIdThreadsMap = null;
   }
 
-  public MybbThread findByXmbVoteDesc(XmbVoteDesc xmbVoteDesc) {
-    for (MybbThread mybbThread : findAll()) {
-      if (mybbThread.xmbtid == null) {
-        continue;
-      }
+  private synchronized Map<Long, MybbThread> getByXmbIdThreadsMap() {
+    if (byXmbIdThreadsMap == null) {
+      LOGGER.warn(String.format("MybbThreadsRepository.findAll()"));
 
-      if (mybbThread.xmbtid.equals(xmbVoteDesc.topicId)) {
-        return mybbThread;
+      List<MybbThread> mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
+
+      byXmbIdThreadsMap = new HashMap<Long, MybbThread>();
+      for (MybbThread mybbThread : mybbThreads) {
+        if (mybbThread.xmbtid == null) {
+          continue;
+        }
+        if (byXmbIdThreadsMap.containsKey(mybbThread.xmbtid)) {
+          final String message = String.format("MybbThreadsCache already contains a MyBB thread with xmbtid = %s", mybbThread.xmbtid);
+          LOGGER.error(message);
+
+          throw new RuntimeException(message);
+        }
+
+        byXmbIdThreadsMap.put(mybbThread.xmbtid, mybbThread);
       }
     }
 
-    return null;
-  }
-
-  public MybbThread findByXmbPost(XmbPost xmbPost) {
-    for (MybbThread mybbThread : findAll()) {
-      if (mybbThread.xmbtid == null) {
-        continue;
-      }
-
-      if (mybbThread.xmbtid.equals(xmbPost.tid)) {
-        return mybbThread;
-      }
-    }
-
-    return null;
+    return byXmbIdThreadsMap;
   }
 }
