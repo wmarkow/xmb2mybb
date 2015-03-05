@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.services;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,7 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbU2URepository;
 
 @Service
 public class MigratePrivateMessages {
+  private final static Logger LOGGER = Logger.getLogger(MigratePrivateMessages.class);
 
   @Autowired
   private XmbU2URepository xmbU2uRepository;
@@ -36,7 +38,7 @@ public class MigratePrivateMessages {
       Page<XmbU2U> xmbU2uPage = (Page<XmbU2U>) xmbU2uRepository.findAll(pageRequest);
       List<XmbU2U> xmbU2Us = xmbU2uPage.getContent();
 
-      System.out.println(String.format("Migrating U2Us package number %s", pageRequest.getPageNumber()));
+      LOGGER.info(String.format("Migrating U2Us package number %s", pageRequest.getPageNumber()));
 
       if (xmbU2Us.size() == 0) {
         shouldContinue = false;

@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.cache;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import vtech.xmb.grabber.db.xmb.entities.XmbThread;
 
 @Component
 public class MybbForumsCache {
+  private final static Logger LOGGER = Logger.getLogger(MybbForumsCache.class);
 
   @Autowired
   private MybbForumsRepository mybbForumsRepository;
@@ -21,7 +23,7 @@ public class MybbForumsCache {
 
   public synchronized List<MybbForum> findAll() {
     if (mybbForums == null) {
-      System.out.println(String.format("Executing findAll"));
+      LOGGER.info("Executing MybbForumsRepository.findAll()");
 
       mybbForums = (List<MybbForum>) mybbForumsRepository.findAll();
     }
@@ -30,15 +32,14 @@ public class MybbForumsCache {
   }
 
   public synchronized void evictCache() {
-    System.out.println(String.format("Evicting the MybbForumsCache"));
+    LOGGER.info("Evicting the MybbForumsCache");
+
     mybbForums = null;
   }
 
   public MybbForum findByXmbForum(XmbForum xmbForum) {
     for (MybbForum mybbForum : findAll()) {
       if (mybbForum.xmbfid == null) {
-        System.out.println(String.format("A Mybb forum with pid=%s and name=%s has a null value of xmbfid.", mybbForum.fid, mybbForum.name));
-
         continue;
       }
 
@@ -47,16 +48,12 @@ public class MybbForumsCache {
       }
     }
 
-    System.out.println(String.format("Can not find a Mybb forum for XMB forum with fid=%s, name=%s", xmbForum.fid, xmbForum.name));
-
     return null;
   }
 
   public MybbForum findByXmbPost(XmbPost xmbPost) {
     for (MybbForum mybbForum : findAll()) {
       if (mybbForum.xmbfid == null) {
-        System.out.println(String.format("A Mybb forum with pid=%s and name=%s has a null value of xmbfid.", mybbForum.fid, mybbForum.name));
-
         continue;
       }
 
@@ -65,17 +62,12 @@ public class MybbForumsCache {
       }
     }
 
-    System.out.println(String.format("Can not find a forum for XMB post with pid=%s tid=%s, fid=%s, subject=%s", xmbPost.pid, xmbPost.tid, xmbPost.fid,
-        xmbPost.subject));
-
     return null;
   }
 
   public MybbForum findByXmbThread(XmbThread xmbThread) {
     for (MybbForum mybbForum : findAll()) {
       if (mybbForum.xmbfid == null) {
-        System.out.println(String.format("A Mybb forum with pid=%s and name=%s has a null value of xmbfid.", mybbForum.fid, mybbForum.name));
-
         continue;
       }
 
@@ -83,8 +75,6 @@ public class MybbForumsCache {
         return mybbForum;
       }
     }
-
-    System.out.println(String.format("Can not find a forum for XMB thread with tid=%s, fid=%s, subject=%s", xmbThread.tid, xmbThread.fid, xmbThread.subject));
 
     return null;
   }

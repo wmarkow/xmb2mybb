@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.cache;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import vtech.xmb.grabber.db.xmb.entities.XmbVoteDesc;
 
 @Component
 public class MybbThreadsCache {
+  private final static Logger LOGGER = Logger.getLogger(MybbThreadsCache.class);
 
   @Autowired
   private MybbThreadsRepository mybbThreadsRepository;
@@ -20,7 +22,7 @@ public class MybbThreadsCache {
 
   public synchronized List<MybbThread> findAll() {
     if (mybbThreads == null) {
-      System.out.println(String.format("Executing findAll"));
+      LOGGER.warn(String.format("MybbThreadsRepository.findAll()"));
 
       mybbThreads = (List<MybbThread>) mybbThreadsRepository.findAll();
     }
@@ -29,16 +31,13 @@ public class MybbThreadsCache {
   }
 
   public synchronized void evictCache() {
-    System.out.println(String.format("Evicting the MybbForumsCache"));
+    LOGGER.info(String.format("Evicting the MybbThreadsCache"));
     mybbThreads = null;
   }
 
   public MybbThread findByXmbVoteDesc(XmbVoteDesc xmbVoteDesc) {
-    for (MybbThread mybbThread : mybbThreads) {
+    for (MybbThread mybbThread : findAll()) {
       if (mybbThread.xmbtid == null) {
-        System.out.println(String.format("A Mybb thread with tid=%s fid=%s and subject=%s has a null value of xmbtid.", mybbThread.tid, mybbThread.fid,
-            mybbThread.subject));
-
         continue;
       }
 
@@ -47,18 +46,12 @@ public class MybbThreadsCache {
       }
     }
 
-    System.out.println(String.format("Can not find a thread for XMB Vote Desc with voteId=%s tid=%s, voteText=%s", xmbVoteDesc.voteId, xmbVoteDesc.topicId,
-        xmbVoteDesc.voteText));
-
     return null;
   }
 
   public MybbThread findByXmbPost(XmbPost xmbPost) {
-    for (MybbThread mybbThread : mybbThreads) {
+    for (MybbThread mybbThread : findAll()) {
       if (mybbThread.xmbtid == null) {
-        System.out.println(String.format("A Mybb thread with tid=%s fid=%s and subject=%s has a null value of xmbtid.", mybbThread.tid, mybbThread.fid,
-            mybbThread.subject));
-
         continue;
       }
 
@@ -66,9 +59,6 @@ public class MybbThreadsCache {
         return mybbThread;
       }
     }
-
-    System.out.println(String.format("Can not find a thread for XMB post with pid=%s tid=%s, fid=%s, subject=%s", xmbPost.pid, xmbPost.tid, xmbPost.fid,
-        xmbPost.subject));
 
     return null;
   }

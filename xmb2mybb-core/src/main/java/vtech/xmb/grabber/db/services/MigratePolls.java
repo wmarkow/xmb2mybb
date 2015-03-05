@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbVoteResultRepository;
 
 @Service
 public class MigratePolls {
-
+  private final static Logger LOGGER = Logger.getLogger(MigratePolls.class);
+  
   @Autowired
   private XmbVoteDescRepository xmbVoteDescRepository;
   @Autowired
@@ -40,13 +42,12 @@ public class MigratePolls {
 
   public void migratePolls() {
     List<XmbVoteDesc> xmbVoteDescs = (List<XmbVoteDesc>) xmbVoteDescRepository.findAll();
-    System.out.println(String.format("Znaleziono %s ankiet", xmbVoteDescs.size()));
 
     for (XmbVoteDesc xmbVoteDesc : xmbVoteDescs) {
       List<XmbVoteResult> xmbVoteResults = xmbVoteResultRepository.findByVoteId(xmbVoteDesc.voteId);
 
       if (xmbVoteResults.size() == 0) {
-        System.out.println(String.format("A vote with empty options voteId=%s, voteText=%s. This poll will not be migrated.", xmbVoteDesc.voteId,
+        LOGGER.warn(String.format("A vote with empty options voteId=%s, voteText=%s. This poll will not be migrated.", xmbVoteDesc.voteId,
             xmbVoteDesc.voteText));
         continue;
       }

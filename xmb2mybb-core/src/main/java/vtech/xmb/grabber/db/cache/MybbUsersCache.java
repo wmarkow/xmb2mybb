@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.cache;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import vtech.xmb.grabber.db.mybb.repositories.MybbUsersRepository;
 
 @Component
 public class MybbUsersCache {
+  private final static Logger LOGGER = Logger.getLogger(MybbUsersCache.class);
 
   @Autowired
   private MybbUsersRepository mybbUsersRepository;
@@ -18,7 +20,7 @@ public class MybbUsersCache {
 
   public synchronized List<MybbUser> findAll() {
     if (mybbUsers == null) {
-      System.out.println(String.format("Executing findAll"));
+      LOGGER.info(String.format("Executing MybbUsersRepository.findAll"));
 
       mybbUsers = (List<MybbUser>) mybbUsersRepository.findAll();
     }
@@ -27,7 +29,7 @@ public class MybbUsersCache {
   }
 
   public synchronized void evictCache() {
-    System.out.println(String.format("Evicting the MyBB Users Cache "));
+    LOGGER.info(String.format("Evicting the MyBB Users Cache "));
     mybbUsers = null;
   }
 
@@ -37,8 +39,6 @@ public class MybbUsersCache {
         return mybbUser;
       }
     }
-
-    System.out.println(String.format("Could not find a MybbUser with name %s", username));
 
     return null;
   }

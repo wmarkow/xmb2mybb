@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.cache;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,8 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbForumsRepository;
 
 @Component
 public class XmbForumsCache {
-
+  private final static Logger LOGGER = Logger.getLogger(XmbForumsCache.class);
+  
   @Autowired
   private XmbForumsRepository xmbForumsRepository;
 
@@ -18,6 +20,8 @@ public class XmbForumsCache {
 
   public synchronized List<XmbForum> findAll() {
     if (xmbForum == null) {
+      LOGGER.info(String.format("Executing XmbForumsRepository.findAll"));
+      
       xmbForum = (List<XmbForum>) xmbForumsRepository.findAll();
     }
 
@@ -25,7 +29,7 @@ public class XmbForumsCache {
   }
 
   public synchronized void evictCache() {
-    System.out.println(String.format("Evicting the XmbForumsCache"));
+    LOGGER.info(String.format("Evicting the XmbForumsCache"));
     xmbForum = null;
   }
 }

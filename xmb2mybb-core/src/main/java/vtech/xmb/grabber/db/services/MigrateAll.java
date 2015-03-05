@@ -21,12 +21,12 @@ public class MigrateAll {
   private MigrateModeratorPermissions migrateModeratorPermissions;
 
   public void migrate() {
-    // migrateUsers.migrateUsers();
-    // migrateForums.migrateForums();
+    migrateUsers.migrateUsers();
+    migrateForums.migrateForums();
     migrateModeratorPermissions.migrateModeratorPermissions();
-    // migrateThreads.migrateThreads();
-    // migratePosts.migratePosts();
-    // migratePolls.migratePolls();
-    // migratePrivateMessages.migrateU2Us();
+    migrateThreads.migrateThreads();
+    migratePosts.migratePosts();
+    migratePolls.migratePolls();
+    migratePrivateMessages.migrateU2Us();
   }
 }

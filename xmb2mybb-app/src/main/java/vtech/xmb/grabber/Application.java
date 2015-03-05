@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.Database;
@@ -14,6 +15,7 @@ import vtech.xmb.grabber.db.services.MigrateAll;
 
 @Configuration
 @ComponentScan
+@PropertySource(ignoreResourceNotFound = true, value = { "classpath:application.properties" })
 public class Application {
 
   public static void main(String[] args) {

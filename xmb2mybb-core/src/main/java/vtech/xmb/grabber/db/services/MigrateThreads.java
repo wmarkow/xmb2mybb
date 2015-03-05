@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.services;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +20,8 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbThreadsRepository;
 
 @Service
 public class MigrateThreads {
-
+  private final static Logger LOGGER = Logger.getLogger(MigrateThreads.class);
+  
   @Autowired
   private XmbThreadsRepository xmbThreadsRepository;
   @Autowired
@@ -65,7 +67,7 @@ public class MigrateThreads {
         mybbThread.sticky = xmbThread.topped;
 
         if (xmbThread.subject.length() > 120) {
-          System.out.println(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters", xmbThread.tid,
+          LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters", xmbThread.tid,
               xmbThread.subject, xmbThread.subject.length()));
           mybbThread.subject = xmbThread.subject.substring(0, 120);
         } else {

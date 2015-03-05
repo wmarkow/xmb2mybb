@@ -1,5 +1,6 @@
 package vtech.xmb.grabber.db.services;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,8 @@ import vtech.xmb.grabber.db.xmb.entities.XmbForum;
 
 @Service
 public class MigrateModeratorPermissions {
-
+  private final static Logger LOGGER = Logger.getLogger(MigrateModeratorPermissions.class);
+  
   @Autowired
   private XmbForumsCache xmbForumsCache;
   @Autowired
@@ -32,7 +34,7 @@ public class MigrateModeratorPermissions {
         MybbUser mybbUser = mybbUsersCache.findUserByName(moderator);
 
         if (mybbUser == null) {
-          System.out.println(String.format("Could not find a user for username = \"%s\". Moderator rights will not be migrated.", moderator));
+          LOGGER.warn(String.format("Could not find a user for username = \"%s\". Moderator rights will not be migrated.", moderator));
 
           continue;
         }

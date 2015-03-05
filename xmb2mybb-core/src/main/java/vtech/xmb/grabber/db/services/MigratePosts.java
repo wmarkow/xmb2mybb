@@ -2,6 +2,7 @@ package vtech.xmb.grabber.db.services;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,8 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbPostsRepository;
 
 @Service
 public class MigratePosts {
+  private final static Logger LOGGER = Logger.getLogger(MigratePosts.class);
+  
   @Autowired
   private XmbPostsRepository xmbPostsRepository;
   @Autowired
@@ -70,7 +73,7 @@ public class MigratePosts {
         mybbPost.tid = mybbThread.tid;
 
         if (xmbPost.subject.length() > 120) {
-          System.out.println(String.format("XMB post pid=%s and tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters",
+          LOGGER.warn(String.format("XMB post pid=%s and tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters",
               xmbPost.pid, xmbPost.tid, xmbPost.subject, xmbPost.subject.length()));
           mybbPost.subject = xmbPost.subject.substring(0, 120);
         } else {
