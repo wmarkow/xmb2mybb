@@ -19,14 +19,17 @@ public class MigrateAll {
   private MigratePrivateMessages migratePrivateMessages;
   @Autowired
   private MigrateModeratorPermissions migrateModeratorPermissions;
+  @Autowired
+  private MigrateAttachments migrateAttachments;
 
   public void migrate() {
-    migrateUsers.migrateUsers();
-    migrateForums.migrateForums();
-    migrateModeratorPermissions.migrateModeratorPermissions();
-    migrateThreads.migrateThreads();
-    migratePosts.migratePosts();
-    migratePolls.migratePolls();
-    migratePrivateMessages.migrateU2Us();
+    // migrateUsers.migrateUsers();
+    // migrateForums.migrateForums();
+    // migrateModeratorPermissions.migrateModeratorPermissions();
+    // migrateThreads.migrateThreads();
+    // migratePosts.migratePosts();
+    // migratePolls.migratePolls();
+    // migratePrivateMessages.migrateU2Us();
+    migrateAttachments.migrateAttachments();
   }
 }

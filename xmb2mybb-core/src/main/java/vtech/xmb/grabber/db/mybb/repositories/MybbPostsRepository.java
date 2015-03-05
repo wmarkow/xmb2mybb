@@ -7,4 +7,5 @@ import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 
 @Repository
 public interface MybbPostsRepository extends CrudRepository<MybbPost, Long> {
+  public MybbPost findByXmbpid(Long xmbPid);
 }
