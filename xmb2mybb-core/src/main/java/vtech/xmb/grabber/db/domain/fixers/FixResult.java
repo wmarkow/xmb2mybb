@@ -1,4 +1,4 @@
-package vtech.xmb.grabber.db.services.fixers;
+package vtech.xmb.grabber.db.domain.fixers;
 
 public class FixResult {
   private String fixedText;
@@ -8,7 +8,7 @@ public class FixResult {
     return fixedText;
   }
 
-  void setFixedText(String fixedText) {
+  public void setFixedText(String fixedText) {
     this.fixedText = fixedText;
   }
 
@@ -16,7 +16,7 @@ public class FixResult {
     return fixRequired;
   }
 
-  void setFixRequired(boolean fixRequired) {
+  public void setFixRequired(boolean fixRequired) {
     this.fixRequired = fixRequired;
   }
 }

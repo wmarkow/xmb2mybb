@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import vtech.xmb.grabber.db.domain.fixers.FixResult;
+
 public class QuotesCharactersFixerTest {
 
   private QuotesCharactersFixer fixer = new QuotesCharactersFixer();

@@ -2,6 +2,8 @@ package vtech.xmb.grabber.db.services.fixers;
 
 import org.springframework.stereotype.Component;
 
+import vtech.xmb.grabber.db.domain.fixers.FixResult;
+
 @Component
 public class QuotesCharactersFixer extends StringFixer {
 

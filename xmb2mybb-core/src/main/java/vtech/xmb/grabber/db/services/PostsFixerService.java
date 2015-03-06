@@ -1,5 +1,6 @@
 package vtech.xmb.grabber.db.services;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -9,10 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import vtech.xmb.grabber.db.domain.fixers.FixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
-import vtech.xmb.grabber.db.services.fixers.FixResult;
 import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
+import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
 
 @Service
 public class PostsFixerService {
@@ -23,6 +25,8 @@ public class PostsFixerService {
 
   @Autowired
   private QuotesCharactersFixer quotesCharactersFixer;
+  @Autowired
+  private RquoteFixer rquoteFixer;
 
   public void fixPostsContent() {
     final int pageSize = 1000;
@@ -43,10 +47,17 @@ public class PostsFixerService {
       }
 
       for (MybbPost mybbPost : mybbPosts) {
-        FixResult quoteCharactersFixResult = quotesCharactersFixer.fix(mybbPost.message);
-        if (quoteCharactersFixResult.isFixRequired()) {
-          mybbPost.message = quoteCharactersFixResult.getFixedText();
-          mybbPostsRepository.save(mybbPost);
+        try {
+          FixResult quoteCharactersFixResult = quotesCharactersFixer.fix(mybbPost.message);
+          FixResult rquoteFixResult = rquoteFixer.fix(quoteCharactersFixResult.getFixedText());
+
+          if (quoteCharactersFixResult.isFixRequired() || rquoteFixResult.isFixRequired()) {
+            mybbPost.message = rquoteFixResult.getFixedText();
+            mybbPostsRepository.save(mybbPost);
+          }
+
+        } catch (ParseException e) {
+          LOGGER.warn(String.format("Parse exception while fixing the post with pid=%s. Post will not be fixed.", mybbPost.pid), e);
         }
       }
       pageRequest = pageRequest.next();
