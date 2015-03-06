@@ -22,6 +22,9 @@ public class MigrateAll {
   @Autowired
   private MigrateAttachments migrateAttachments;
 
+  @Autowired
+  private PostsFixerService postsFixerService;
+
   public void migrate() {
     // migrateUsers.migrateUsers();
     // migrateForums.migrateForums();
@@ -30,6 +33,8 @@ public class MigrateAll {
     // migratePosts.migratePosts();
     // migratePolls.migratePolls();
     // migratePrivateMessages.migrateU2Us();
-    migrateAttachments.migrateAttachments();
+    // migrateAttachments.migrateAttachments();
+
+    postsFixerService.fixPostsContent();
   }
 }
