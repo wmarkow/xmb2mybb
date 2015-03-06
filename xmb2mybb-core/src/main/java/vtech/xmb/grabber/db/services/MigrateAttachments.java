@@ -80,7 +80,7 @@ public class MigrateAttachments {
         mybbAttachment.pid = mybbPost.pid;
         mybbAttachment.uid = mybbPost.uid;
         mybbAttachment.visible = 1;
-        mybbAttachment.xmb_aid = xmbAttachment.aid;
+        mybbAttachment.xmbAid = xmbAttachment.aid;
 
         // copy file content
         try {

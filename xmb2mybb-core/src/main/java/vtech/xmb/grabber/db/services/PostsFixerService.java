@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
+import vtech.xmb.grabber.db.services.fixers.FileFixer;
 import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
 import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
 
@@ -27,6 +28,8 @@ public class PostsFixerService {
   private QuotesCharactersFixer quotesCharactersFixer;
   @Autowired
   private RquoteFixer rquoteFixer;
+  @Autowired
+  private FileFixer fileFixer;
 
   public void fixPostsContent() {
     final int pageSize = 1000;
@@ -50,9 +53,10 @@ public class PostsFixerService {
         try {
           FixResult quoteCharactersFixResult = quotesCharactersFixer.fix(mybbPost.message);
           FixResult rquoteFixResult = rquoteFixer.fix(quoteCharactersFixResult.getFixedText());
+          FixResult fileFixerResult = fileFixer.fix(rquoteFixResult.getFixedText());
 
-          if (quoteCharactersFixResult.isFixRequired() || rquoteFixResult.isFixRequired()) {
-            mybbPost.message = rquoteFixResult.getFixedText();
+          if (quoteCharactersFixResult.isFixRequired() || rquoteFixResult.isFixRequired() || fileFixerResult.isFixRequired()) {
+            mybbPost.message = fileFixerResult.getFixedText();
             mybbPostsRepository.save(mybbPost);
           }
 

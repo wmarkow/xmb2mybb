@@ -44,5 +44,5 @@ public class MybbAttachment {
   public int visible;
 
   @Column(name = "xmb_aid")
-  public Long xmb_aid;
+  public Long xmbAid;
 }
