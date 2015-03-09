@@ -92,6 +92,7 @@ public class MigrateThreads {
         mybbThread.visible = 1;
         mybbThread.notes = "";
         mybbThread.poll = 0;
+        mybbThread.views = xmbThread.views;
 
         mybbThreadsRepository.save(mybbThread);
       }
@@ -108,7 +109,7 @@ public class MigrateThreads {
 
     return fixersChain;
   }
-  
+
   private String getFixedSubject(XmbThread xmbThread) {
     String fixedSubject = xmbThread.subject;
     try {
@@ -122,7 +123,7 @@ public class MigrateThreads {
       LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters (%s)", xmbThread.tid,
           xmbThread.subject, xmbThread.subject.length(), fixedSubject));
     }
-    
+
     return fixedSubject;
   }
 }

@@ -26,6 +26,9 @@ public class MybbThread implements Serializable {
 
   @Column(name = "uid")
   public Long uid;
+  
+  @Column(name = "views")
+  public int views;
 
   @Column(name = "username")
   public String username;

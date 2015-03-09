@@ -20,6 +20,9 @@ public class XmbThread implements Serializable {
 
   @Column(name = "fid")
   public Long fid;
+  
+  @Column(name = "views")
+  public int views;
 
   @Column(name = "subject")
   public String subject;
