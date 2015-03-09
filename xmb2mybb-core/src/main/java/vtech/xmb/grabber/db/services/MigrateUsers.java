@@ -38,7 +38,7 @@ public class MigrateUsers {
     for (XmbMember xmbMember : xmbMembers) {
       MybbUser mybbUser = new MybbUser();
 
-      mybbUser.applyDefaults();
+      applyDefaults(mybbUser);
       updateStatus(mybbUser, xmbMember.status);
       mybbUser.aim = xmbMember.aim;
       mybbUser.avatar = xmbMember.avatar;
@@ -60,6 +60,18 @@ public class MigrateUsers {
       mybbUser.yahoo = xmbMember.yahoo;
       mybbUser.usertitle = xmbMember.customstatus;
       mybbUser.regip = encodeRegIp(xmbMember);
+      mybbUser.tpp = xmbMember.tpp;
+      mybbUser.ppp = xmbMember.ppp;
+      if ("yes".equals(xmbMember.showemail)) {
+        mybbUser.hideemail = 0;
+      } else {
+        mybbUser.hideemail = 1;
+      }
+      if("1".equals(xmbMember.invisible)){
+        mybbUser.invisible = 1;
+      }else{
+        mybbUser.invisible = 0;
+      }
 
       MybbUser savedUser = mybbUsersRepository.save(mybbUser);
 
@@ -198,5 +210,26 @@ public class MigrateUsers {
     }
 
     return result;
+  }
+
+  private void applyDefaults(MybbUser mybbUser) {
+    mybbUser.buddylist = "";
+    mybbUser.ignorelist = "";
+    mybbUser.pmfolders = "";
+    mybbUser.notepad = "";
+    mybbUser.usernotes = "";
+    mybbUser.allowNotices = 1;
+    mybbUser.receivepms = 1;
+    mybbUser.pmnotice = 1;
+    mybbUser.pmnotify = 1;
+
+    mybbUser.showavatars = 1;
+    mybbUser.showimages = 1;
+    mybbUser.showquickreply = 1;
+    mybbUser.showredirect = 1;
+    mybbUser.showsigs = 1;
+    mybbUser.showvideos = 1;
+
+    mybbUser.classicpostbit = 1;
   }
 }

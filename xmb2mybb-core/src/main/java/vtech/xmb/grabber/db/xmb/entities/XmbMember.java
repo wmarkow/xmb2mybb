@@ -71,4 +71,16 @@ public class XmbMember implements Serializable {
   
   @Column(name = "mood", nullable = false, unique = false)
   public String mood;
+  
+  @Column(name = "showemail")
+  public String showemail;
+  
+  @Column(name = "invisible", nullable = false, unique = false)
+  public String invisible;
+  
+  @Column(name = "tpp", nullable = true, unique = false)
+  public int tpp;
+
+  @Column(name = "ppp", nullable = true, unique = false)
+  public int ppp;
 }
