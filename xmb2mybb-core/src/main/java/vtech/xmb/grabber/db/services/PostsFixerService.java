@@ -14,6 +14,8 @@ import vtech.xmb.grabber.db.domain.fixers.FixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.services.fixers.FileFixer;
+import vtech.xmb.grabber.db.services.fixers.FixersChain;
+import vtech.xmb.grabber.db.services.fixers.HtmlEntityFixer;
 import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
 import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
 
@@ -24,6 +26,8 @@ public class PostsFixerService {
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
 
+  @Autowired
+  private HtmlEntityFixer htmlEntityFixer;
   @Autowired
   private QuotesCharactersFixer quotesCharactersFixer;
   @Autowired
@@ -38,6 +42,12 @@ public class PostsFixerService {
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
+    FixersChain fixersChain = new FixersChain();
+    fixersChain.addFixerToChain(htmlEntityFixer);
+    fixersChain.addFixerToChain(quotesCharactersFixer);
+    fixersChain.addFixerToChain(rquoteFixer);
+    fixersChain.addFixerToChain(fileFixer);
+
     while (shouldContinue) {
       LOGGER.info(String.format("Processing the batch number %s", pageRequest.getPageNumber()));
 
@@ -51,12 +61,10 @@ public class PostsFixerService {
 
       for (MybbPost mybbPost : mybbPosts) {
         try {
-          FixResult quoteCharactersFixResult = quotesCharactersFixer.fix(mybbPost.message);
-          FixResult rquoteFixResult = rquoteFixer.fix(quoteCharactersFixResult.getFixedText());
-          FixResult fileFixerResult = fileFixer.fix(rquoteFixResult.getFixedText());
+          FixResult fixResult = fixersChain.fix(mybbPost.message);
 
-          if (quoteCharactersFixResult.isFixRequired() || rquoteFixResult.isFixRequired() || fileFixerResult.isFixRequired()) {
-            mybbPost.message = fileFixerResult.getFixedText();
+          if (fixResult.isFixRequired()) {
+            mybbPost.message = fixResult.getFixedText();
             mybbPostsRepository.save(mybbPost);
           }
 
