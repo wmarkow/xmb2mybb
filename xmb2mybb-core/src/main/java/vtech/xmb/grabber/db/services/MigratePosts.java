@@ -1,5 +1,6 @@
 package vtech.xmb.grabber.db.services;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -17,13 +18,16 @@ import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
+import vtech.xmb.grabber.db.services.fixers.FixersChain;
+import vtech.xmb.grabber.db.services.fixers.HtmlEntityFixer;
+import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
 import vtech.xmb.grabber.db.xmb.entities.XmbPost;
 import vtech.xmb.grabber.db.xmb.repositories.XmbPostsRepository;
 
 @Service
 public class MigratePosts {
   private final static Logger LOGGER = Logger.getLogger(MigratePosts.class);
-  
+
   @Autowired
   private XmbPostsRepository xmbPostsRepository;
   @Autowired
@@ -34,6 +38,12 @@ public class MigratePosts {
   private MybbForumsCache mybbForumsCache;
   @Autowired
   private MybbUsersCache mybbUsersCache;
+  @Autowired
+  private HtmlEntityFixer htmlEntityFixer;
+  @Autowired
+  private QuotesCharactersFixer quotesCharactersFixer;
+
+  private FixersChain fixersChain;
 
   public void migratePosts() {
     migratePostsFirstStage();
@@ -71,17 +81,9 @@ public class MigratePosts {
           continue;
         }
         mybbPost.tid = mybbThread.tid;
-
-        if (xmbPost.subject.length() > 120) {
-          LOGGER.warn(String.format("XMB post pid=%s and tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters",
-              xmbPost.pid, xmbPost.tid, xmbPost.subject, xmbPost.subject.length()));
-          mybbPost.subject = xmbPost.subject.substring(0, 120);
-        } else {
-          mybbPost.subject = xmbPost.subject;
-        }
-
+        mybbPost.subject = getFixedSubject(xmbPost);
+        mybbPost.message = getFixedMessage(xmbPost);
         mybbPost.dateline = xmbPost.dateline;
-        mybbPost.message = xmbPost.message;
 
         final MybbUser mybbUser = mybbUsersCache.findUserByName(xmbPost.author);
         if (mybbUser == null) {
@@ -102,5 +104,42 @@ public class MigratePosts {
       }
       pageRequest = pageRequest.next();
     }
+  }
+
+  private FixersChain getFixersChain() {
+    if (this.fixersChain == null) {
+      fixersChain = new FixersChain();
+      fixersChain.addFixerToChain(htmlEntityFixer);
+      fixersChain.addFixerToChain(quotesCharactersFixer);
+    }
+
+    return fixersChain;
+  }
+
+  private String getFixedSubject(XmbPost xmbPost) {
+    String fixedSubject = xmbPost.subject;
+    try {
+      fixedSubject = getFixersChain().fix(xmbPost.subject).getFixedText();
+    } catch (ParseException e) {
+      LOGGER.warn(e.getMessage(), e);
+    }
+
+    if (fixedSubject.length() > 120) {
+      fixedSubject = fixedSubject.substring(0, 120);
+      LOGGER.warn(String.format("XMB post pid=%s and tid=%s and subject=%s has too long subject (%s characters). It will be truncated to 120 characters (%s)",
+          xmbPost.pid, xmbPost.tid, xmbPost.subject, xmbPost.subject.length(), fixedSubject));
+    }
+
+    return fixedSubject;
+  }
+
+  private String getFixedMessage(XmbPost xmbPost) {
+    try {
+      return getFixersChain().fix(xmbPost.message).getFixedText();
+    } catch (ParseException e) {
+      LOGGER.warn(String.format("Parse exception while fixing the XMB post with pid=%s. Post will not be fixed.", xmbPost.pid), e);
+    }
+
+    return xmbPost.message;
   }
 }

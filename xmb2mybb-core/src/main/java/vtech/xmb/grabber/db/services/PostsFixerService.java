@@ -15,8 +15,6 @@ import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.services.fixers.FileFixer;
 import vtech.xmb.grabber.db.services.fixers.FixersChain;
-import vtech.xmb.grabber.db.services.fixers.HtmlEntityFixer;
-import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
 import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
 
 @Service
@@ -26,10 +24,6 @@ public class PostsFixerService {
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
 
-  @Autowired
-  private HtmlEntityFixer htmlEntityFixer;
-  @Autowired
-  private QuotesCharactersFixer quotesCharactersFixer;
   @Autowired
   private RquoteFixer rquoteFixer;
   @Autowired
@@ -43,8 +37,6 @@ public class PostsFixerService {
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
     FixersChain fixersChain = new FixersChain();
-    fixersChain.addFixerToChain(htmlEntityFixer);
-    fixersChain.addFixerToChain(quotesCharactersFixer);
     fixersChain.addFixerToChain(rquoteFixer);
     fixersChain.addFixerToChain(fileFixer);
 
