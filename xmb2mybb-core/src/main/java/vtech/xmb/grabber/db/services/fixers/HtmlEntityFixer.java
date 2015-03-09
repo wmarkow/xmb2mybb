@@ -14,10 +14,16 @@ public class HtmlEntityFixer extends StringFixer {
 
   @Override
   public FixResult fix(final String textToFix) throws ParseException {
+    if (!(textToFix.contains("&") || textToFix.contains("#"))) {
+      FixResult fixResult = new FixResult();
+      fixResult.setFixedText(textToFix);
+      fixResult.setFixRequired(false);
+    }
+
     String unescaped = HtmlUtils.htmlUnescape(textToFix);
     // sometimes text are double encoded
     unescaped = HtmlUtils.htmlUnescape(unescaped);
-    
+
     FixResult fixResult = new FixResult();
     fixResult.setFixedText(unescaped);
 
