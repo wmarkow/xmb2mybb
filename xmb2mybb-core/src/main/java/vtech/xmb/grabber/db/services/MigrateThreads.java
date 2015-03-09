@@ -1,5 +1,6 @@
 package vtech.xmb.grabber.db.services;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -15,13 +16,16 @@ import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.repositories.MybbThreadsRepository;
+import vtech.xmb.grabber.db.services.fixers.FixersChain;
+import vtech.xmb.grabber.db.services.fixers.HtmlEntityFixer;
+import vtech.xmb.grabber.db.services.fixers.QuotesCharactersFixer;
 import vtech.xmb.grabber.db.xmb.entities.XmbThread;
 import vtech.xmb.grabber.db.xmb.repositories.XmbThreadsRepository;
 
 @Service
 public class MigrateThreads {
   private final static Logger LOGGER = Logger.getLogger(MigrateThreads.class);
-  
+
   @Autowired
   private XmbThreadsRepository xmbThreadsRepository;
   @Autowired
@@ -30,6 +34,12 @@ public class MigrateThreads {
   private MybbForumsCache mybbForumsCache;
   @Autowired
   private MybbUsersCache mybbUsersCache;
+  @Autowired
+  private HtmlEntityFixer htmlEntityFixer;
+  @Autowired
+  private QuotesCharactersFixer quotesCharactersFixer;
+
+  private FixersChain fixersChain;
 
   public void migrateThreads() {
     migrateThreadsFirstStage();
@@ -41,6 +51,8 @@ public class MigrateThreads {
     boolean shouldContinue = true;
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
+
+    FixersChain fixersChain = getFixersChain();
 
     while (shouldContinue) {
       Page<XmbThread> xmbThreadsPage = (Page<XmbThread>) xmbThreadsRepository.findAll(pageRequest);
@@ -66,12 +78,19 @@ public class MigrateThreads {
         mybbThread.fid = mybbForum.fid;
         mybbThread.sticky = xmbThread.topped;
 
-        if (xmbThread.subject.length() > 120) {
-          LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters", xmbThread.tid,
-              xmbThread.subject, xmbThread.subject.length()));
-          mybbThread.subject = xmbThread.subject.substring(0, 120);
+        String subject = xmbThread.subject;
+        try {
+          subject = fixersChain.fix(xmbThread.subject).getFixedText();
+        } catch (ParseException e) {
+          LOGGER.warn(e.getMessage(), e);
+        }
+
+        if (subject.length() > 120) {
+          mybbThread.subject = subject.substring(0, 120);
+          LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters (%s)", xmbThread.tid,
+              xmbThread.subject, xmbThread.subject.length(), mybbThread.subject));
         } else {
-          mybbThread.subject = xmbThread.subject;
+          mybbThread.subject = subject;
         }
 
         final MybbUser mybbUser = mybbUsersCache.findUserByName(xmbThread.author);
@@ -93,5 +112,15 @@ public class MigrateThreads {
       }
       pageRequest = pageRequest.next();
     }
+  }
+
+  private FixersChain getFixersChain() {
+    if (this.fixersChain == null) {
+      fixersChain = new FixersChain();
+      fixersChain.addFixerToChain(htmlEntityFixer);
+      fixersChain.addFixerToChain(quotesCharactersFixer);
+    }
+
+    return fixersChain;
   }
 }
