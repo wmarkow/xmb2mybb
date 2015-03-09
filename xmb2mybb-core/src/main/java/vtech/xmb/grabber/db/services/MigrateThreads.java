@@ -77,22 +77,7 @@ public class MigrateThreads {
         }
         mybbThread.fid = mybbForum.fid;
         mybbThread.sticky = xmbThread.topped;
-
-        String subject = xmbThread.subject;
-        try {
-          subject = fixersChain.fix(xmbThread.subject).getFixedText();
-        } catch (ParseException e) {
-          LOGGER.warn(e.getMessage(), e);
-        }
-
-        if (subject.length() > 120) {
-          mybbThread.subject = subject.substring(0, 120);
-          LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters (%s)", xmbThread.tid,
-              xmbThread.subject, xmbThread.subject.length(), mybbThread.subject));
-        } else {
-          mybbThread.subject = subject;
-        }
-
+        mybbThread.subject = getFixedSubject(xmbThread);
         final MybbUser mybbUser = mybbUsersCache.findUserByName(xmbThread.author);
         if (mybbUser == null) {
           mybbThread.uid = 0L;
@@ -122,5 +107,22 @@ public class MigrateThreads {
     }
 
     return fixersChain;
+  }
+  
+  private String getFixedSubject(XmbThread xmbThread) {
+    String fixedSubject = xmbThread.subject;
+    try {
+      fixedSubject = getFixersChain().fix(xmbThread.subject).getFixedText();
+    } catch (ParseException e) {
+      LOGGER.warn(e.getMessage(), e);
+    }
+
+    if (fixedSubject.length() > 120) {
+      fixedSubject = fixedSubject.substring(0, 120);
+      LOGGER.warn(String.format("XMB thread tid=%s and subject=%s has too long subject (%s). It will be truncated to 120 characters (%s)", xmbThread.tid,
+          xmbThread.subject, xmbThread.subject.length(), fixedSubject));
+    }
+    
+    return fixedSubject;
   }
 }
