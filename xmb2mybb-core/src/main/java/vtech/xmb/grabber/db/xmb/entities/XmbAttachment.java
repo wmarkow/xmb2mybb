@@ -18,6 +18,9 @@ public class XmbAttachment {
 
   @Column(name = "pid")
   public Long pid;
+  
+  @Column(name = "parentid")
+  public Long parentid;
 
   @Column(name = "filename")
   public String filename;

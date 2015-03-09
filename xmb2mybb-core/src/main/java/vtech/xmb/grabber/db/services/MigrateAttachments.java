@@ -58,6 +58,11 @@ public class MigrateAttachments {
       }
 
       for (XmbAttachment xmbAttachment : xmbAttachments) {
+        if (xmbAttachment.parentid > 0) {
+          // this is an image thumbnail; do not migrate it
+          continue;
+        }
+
         MybbAttachment mybbAttachment = new MybbAttachment();
 
         MybbPost mybbPost = mybbPostsRepository.findByXmbpid(xmbAttachment.pid);
