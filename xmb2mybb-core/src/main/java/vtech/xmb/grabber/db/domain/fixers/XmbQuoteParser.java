@@ -30,7 +30,7 @@ public class XmbQuoteParser {
 
   private final static XmbComplexQuote parseAsComplex(String quoteAsString) throws ParseException {
     try {
-      String[] splits = quoteAsString.split("&amp;");
+      String[] splits = quoteAsString.split("&");
 
       XmbComplexQuote rquote = new XmbComplexQuote(quoteAsString);
 

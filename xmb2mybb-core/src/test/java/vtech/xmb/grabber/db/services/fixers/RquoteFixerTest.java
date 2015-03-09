@@ -38,8 +38,8 @@ public class RquoteFixerTest {
 
   @Test
   public void testFixNestedXmbQuotes() throws IOException, ParseException {
-    XmbComplexQuote complexQuote1 = (XmbComplexQuote) XmbQuoteParser.parse("[rquote=351038&amp;tid=24803&amp;author=greg_x]");
-    XmbComplexQuote complexQuote2 = (XmbComplexQuote) XmbQuoteParser.parse("[rquote=350996&amp;tid=24803&amp;author=Megana]");
+    XmbComplexQuote complexQuote1 = (XmbComplexQuote) XmbQuoteParser.parse("[rquote=351038&tid=24803&author=greg_x]");
+    XmbComplexQuote complexQuote2 = (XmbComplexQuote) XmbQuoteParser.parse("[rquote=350996&tid=24803&author=Megana]");
 
     MybbComplexQuote mybbComplexQuote1 = new MybbComplexQuote();
     mybbComplexQuote1.setAuthor(complexQuote1.getAuthor());
