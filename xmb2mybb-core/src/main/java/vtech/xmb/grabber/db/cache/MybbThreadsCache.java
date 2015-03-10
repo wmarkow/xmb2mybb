@@ -30,6 +30,10 @@ public class MybbThreadsCache {
     return getByXmbIdThreadsMap().get(xmbPost.tid);
   }
 
+  public MybbThread findByXmbThreadId(long xmbThreadId) {
+    return getByXmbIdThreadsMap().get(xmbThreadId);
+  }
+
   public synchronized void evictCache() {
     LOGGER.info(String.format("Evicting the MybbThreadsCache"));
     byXmbIdThreadsMap = null;

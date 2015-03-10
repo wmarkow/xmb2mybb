@@ -16,6 +16,7 @@ import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.services.fixers.FileFixer;
 import vtech.xmb.grabber.db.services.fixers.FixersChain;
 import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
+import vtech.xmb.grabber.db.services.fixers.links.ForumLinksFixer;
 
 @Service
 public class PostsFixerService {
@@ -28,6 +29,8 @@ public class PostsFixerService {
   private RquoteFixer rquoteFixer;
   @Autowired
   private FileFixer fileFixer;
+  @Autowired
+  private ForumLinksFixer linksFixer;
 
   public void fixPostsContent() {
     final int pageSize = 1000;
@@ -37,6 +40,7 @@ public class PostsFixerService {
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
     FixersChain fixersChain = new FixersChain();
+    fixersChain.addFixerToChain(linksFixer);
     fixersChain.addFixerToChain(rquoteFixer);
     fixersChain.addFixerToChain(fileFixer);
 
