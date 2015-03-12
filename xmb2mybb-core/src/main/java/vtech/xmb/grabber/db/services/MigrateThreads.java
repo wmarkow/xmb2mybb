@@ -71,7 +71,7 @@ public class MigrateThreads {
         } else {
           mybbThread.closed = 0;
         }
-        final MybbForum mybbForum = mybbForumsCache.findByXmbThread(xmbThread);
+        final MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbThread.fid);
         if (mybbForum == null) {
           continue;
         }

@@ -69,7 +69,7 @@ public class MigratePosts {
         MybbPost mybbPost = new MybbPost();
 
         // derive forum id
-        final MybbForum mybbForum = mybbForumsCache.findByXmbPost(xmbPost);
+        final MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbPost.fid);
         if (mybbForum == null) {
           continue;
         }

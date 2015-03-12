@@ -37,41 +37,13 @@ public class MybbForumsCache {
     mybbForums = null;
   }
 
-  public MybbForum findByXmbForum(XmbForum xmbForum) {
+  public MybbForum findByXmbForumId(Long xmbForumId) {
     for (MybbForum mybbForum : findAll()) {
       if (mybbForum.xmbfid == null) {
         continue;
       }
 
-      if (mybbForum.xmbfid.equals(xmbForum.fid)) {
-        return mybbForum;
-      }
-    }
-
-    return null;
-  }
-
-  public MybbForum findByXmbPost(XmbPost xmbPost) {
-    for (MybbForum mybbForum : findAll()) {
-      if (mybbForum.xmbfid == null) {
-        continue;
-      }
-
-      if (mybbForum.xmbfid.equals(xmbPost.fid)) {
-        return mybbForum;
-      }
-    }
-
-    return null;
-  }
-
-  public MybbForum findByXmbThread(XmbThread xmbThread) {
-    for (MybbForum mybbForum : findAll()) {
-      if (mybbForum.xmbfid == null) {
-        continue;
-      }
-
-      if (mybbForum.xmbfid.equals(xmbThread.fid)) {
+      if (mybbForum.xmbfid.equals(xmbForumId)) {
         return mybbForum;
       }
     }

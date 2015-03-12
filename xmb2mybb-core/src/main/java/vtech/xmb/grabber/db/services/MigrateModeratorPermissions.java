@@ -28,7 +28,7 @@ public class MigrateModeratorPermissions {
 
   public void migrateModeratorPermissions() {
     for (XmbForum xmbForum : xmbForumsCache.findAll()) {
-      MybbForum mybbForum = mybbForumsCache.findByXmbForum(xmbForum);
+      MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbForum.fid);
 
       for (String moderator : xmbForum.getModerators()) {
         MybbUser mybbUser = mybbUsersCache.findUserByName(moderator);

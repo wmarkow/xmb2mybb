@@ -26,6 +26,8 @@ public class ForumLinksFixer extends StringFixer {
   private ViewthreadTidPagePidLinkFixer viewthreadTidPagePidLinkFixer;
   @Autowired
   private ViewthreadTidLinkFixer viewthreadTidLinkFixer;
+  @Autowired
+  private ForumdisplayLinkFixer forumdisplayLinkFixer;
   @Value("${xmb.forum.links.prefix}")
   private String xmbForumLinksPrefix;
 
@@ -52,5 +54,6 @@ public class ForumLinksFixer extends StringFixer {
     fixersChain = new FixersChain();
     fixersChain.addFixerToChain(viewthreadTidPagePidLinkFixer);
     fixersChain.addFixerToChain(viewthreadTidLinkFixer);
+    fixersChain.addFixerToChain(forumdisplayLinkFixer);
   }
 }
