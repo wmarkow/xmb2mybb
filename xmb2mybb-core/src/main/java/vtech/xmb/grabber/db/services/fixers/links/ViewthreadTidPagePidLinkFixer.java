@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,16 +90,5 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer {
 
   private String createMybbLink(long postId) {
     return String.format("%sshowthread.php?pid=%s#pid%s", mybbForumLinksPrefix, postId, postId);
-  }
-
-  @PostConstruct
-  private void check() {
-    if (!xmbForumLinksPrefix.endsWith("/")) {
-      xmbForumLinksPrefix = xmbForumLinksPrefix + "/";
-    }
-
-    if (!mybbForumLinksPrefix.endsWith("/")) {
-      mybbForumLinksPrefix = mybbForumLinksPrefix + "/";
-    }
   }
 }

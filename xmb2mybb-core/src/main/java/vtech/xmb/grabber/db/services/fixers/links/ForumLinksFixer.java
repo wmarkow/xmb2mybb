@@ -52,9 +52,5 @@ public class ForumLinksFixer extends StringFixer {
     fixersChain = new FixersChain();
     fixersChain.addFixerToChain(viewthreadTidPagePidLinkFixer);
     fixersChain.addFixerToChain(viewthreadTidLinkFixer);
-
-    if (!xmbForumLinksPrefix.endsWith("/")) {
-      xmbForumLinksPrefix = xmbForumLinksPrefix + "/";
-    }
   }
 }

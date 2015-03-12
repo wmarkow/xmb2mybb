@@ -88,15 +88,4 @@ public class ViewthreadTidLinkFixer extends StringFixer {
   private String createMybbLink(long threadId) {
     return String.format("%sshowthread.php?tid=%s", mybbForumLinksPrefix, threadId);
   }
-
-  @PostConstruct
-  private void check() {
-    if (!xmbForumLinksPrefix.endsWith("/")) {
-      xmbForumLinksPrefix = xmbForumLinksPrefix + "/";
-    }
-
-    if (!mybbForumLinksPrefix.endsWith("/")) {
-      mybbForumLinksPrefix = mybbForumLinksPrefix + "/";
-    }
-  }
 }
