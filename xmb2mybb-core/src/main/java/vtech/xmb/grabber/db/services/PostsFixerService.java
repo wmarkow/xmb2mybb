@@ -22,6 +22,7 @@ import vtech.xmb.grabber.db.services.fixers.links.ForumLinksFixer;
 @Service
 public class PostsFixerService {
   private final static Logger LOGGER = Logger.getLogger(PostsFixerService.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
@@ -45,7 +46,7 @@ public class PostsFixerService {
     fixersChain.addFixerToChain(fileFixer);
 
     while (shouldContinue) {
-      LOGGER.info(String.format("Processing the batch number %s", pageRequest.getPageNumber()));
+      ROOT_LOGGER.info(String.format("Fixing posts links: processing the batch number %s", pageRequest.getPageNumber()));
 
       Page<MybbPost> mybbPostsPage = (Page<MybbPost>) mybbPostsRepository.findAll(pageRequest);
       List<MybbPost> mybbPosts = mybbPostsPage.getContent();
@@ -60,6 +61,7 @@ public class PostsFixerService {
           LinkFixResult linkFixResult = linksFixer.fix(mybbPost.message);
           if (linkFixResult.isHasInvalidLinks()) {
             // TODO: put additional log here
+            LOGGER.warn(String.format("Post with XMB pid=%s and MyBB pid=%s has invalid links.", mybbPost.xmbpid, mybbPost.pid));
           }
 
           FixResult fixResult = fixersChain.fix(linkFixResult.getFixedText());

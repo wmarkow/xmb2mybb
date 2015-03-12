@@ -11,11 +11,12 @@ import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.repositories.MybbAttachmentsRepository;
+import vtech.xmb.grabber.db.services.PostsFixerService;
 import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
 public class ForumLinksFixer extends StringFixer<LinkFixResult> {
-  private final static Logger LOGGER = Logger.getLogger(ForumLinksFixer.class);
+  private final static Logger POST_FIXER_SERVICE_LOGGER = Logger.getLogger(PostsFixerService.class);
 
   @Autowired
   private MybbAttachmentsRepository mybbAttachmentsRepository;
@@ -38,10 +39,9 @@ public class ForumLinksFixer extends StringFixer<LinkFixResult> {
     Matcher matcher = pattern.matcher(fixResult3.getFixedText());
 
     while (matcher.find()) {
-      final String biggerLinkAsString = fixResult3.getFixedText().substring(Math.max(0, matcher.start() - 100),
-          Math.min(fixResult3.getFixedText().length(), matcher.end() + 100));
+      final String biggerLinkAsString = fixResult3.getFixedText().substring(matcher.start(), Math.min(fixResult3.getFixedText().length(), matcher.end() + 100));
 
-      LOGGER.warn(String.format("Link to fix is something like %s", biggerLinkAsString));
+      POST_FIXER_SERVICE_LOGGER.warn(String.format("Link to fix is something like %s", biggerLinkAsString));
     }
 
     LinkFixResult result = new LinkFixResult();

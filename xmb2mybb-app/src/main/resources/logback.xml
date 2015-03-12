@@ -6,7 +6,6 @@
 	<timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss" />
 
 
-	<property name="LOG_FILE" value="migration.log-${bySecond}" />
 	<property name="FILE_LOG_PATTERN"
 		value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID:- } [%t] --- %-40.40logger{39} : %m%n%wex" />
 
@@ -18,16 +17,40 @@
 	</appender>
 
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+	<appender name="MAIN_FILE" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
-		<file>${LOG_FILE}</file>
+		<file>migration.log-${bySecond}</file>
 	</appender>
 
-	<root level="INFO">
-		<appender-ref ref="FILE" />
-		<appender-ref ref="STDOUT" />
-	</root>
+	<appender name="POST_FIXER_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-post-fixer.log-${bySecond}</file>
+	</appender>
+
+	<appender name="USERS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-users.log-${bySecond}</file>
+	</appender>
+
+	<!-- <root level="INFO"> -->
+	<!-- <appender-ref ref="MAIN_FILE" /> -->
+	<!-- <appender-ref ref="STDOUT" /> -->
+	<!-- </root> -->
+
+	<logger name="vtech.xmb.grabber.db.services.PostsFixerService"
+		level="INFO" additivity="false">
+		<appender-ref ref="POST_FIXER_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.MigrateUsers" level="INFO"
+		additivity="false">
+		<appender-ref ref="USERS_SERVICE_APPENDER" />
+	</logger>
 
 </configuration>

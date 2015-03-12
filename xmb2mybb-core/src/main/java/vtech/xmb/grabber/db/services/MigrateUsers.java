@@ -21,6 +21,7 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbMembersRepository;
 @Service
 public class MigrateUsers {
   private final static Logger LOGGER = Logger.getLogger(MigrateUsers.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private XmbMembersRepository xmbMembersRepository;
@@ -32,6 +33,9 @@ public class MigrateUsers {
   private MybbUsersCache mybbUsersCache;
 
   public void migrateUsers() {
+
+    LOGGER.info("Users migration started.");
+    ROOT_LOGGER.info("Users migration started.");
 
     List<XmbMember> xmbMembers = (List<XmbMember>) xmbMembersRepository.findAll();
 
@@ -67,9 +71,9 @@ public class MigrateUsers {
       } else {
         mybbUser.hideemail = 1;
       }
-      if("1".equals(xmbMember.invisible)){
+      if ("1".equals(xmbMember.invisible)) {
         mybbUser.invisible = 1;
-      }else{
+      } else {
         mybbUser.invisible = 0;
       }
 
@@ -89,6 +93,9 @@ public class MigrateUsers {
     }
 
     mybbUsersCache.evictCache();
+
+    LOGGER.info("Users migration finished.");
+    ROOT_LOGGER.info("Users migration finished.");
   }
 
   private void updateStatus(MybbUser mybbUser, String xmbStatus) {
@@ -126,6 +133,10 @@ public class MigrateUsers {
     }
 
     if (xmbBirthDay.trim().isEmpty()) {
+      return "";
+    }
+    
+    if(xmbBirthDay.equals("0000-00-00")){
       return "";
     }
 

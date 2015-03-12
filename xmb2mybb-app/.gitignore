@@ -1,2 +1,2 @@
 /target/
-migration.log*
+migration*.log*
