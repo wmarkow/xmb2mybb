@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
+import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.services.fixers.FileFixer;
@@ -40,7 +41,6 @@ public class PostsFixerService {
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
     FixersChain fixersChain = new FixersChain();
-    fixersChain.addFixerToChain(linksFixer);
     fixersChain.addFixerToChain(rquoteFixer);
     fixersChain.addFixerToChain(fileFixer);
 
@@ -57,9 +57,14 @@ public class PostsFixerService {
 
       for (MybbPost mybbPost : mybbPosts) {
         try {
-          FixResult fixResult = fixersChain.fix(mybbPost.message);
+          LinkFixResult linkFixResult = linksFixer.fix(mybbPost.message);
+          if (linkFixResult.isHasInvalidLinks()) {
+            // TODO: put additional log here
+          }
 
-          if (fixResult.isFixRequired()) {
+          FixResult fixResult = fixersChain.fix(linkFixResult.getFixedText());
+
+          if (linkFixResult.isFixRequired() || fixResult.isFixRequired()) {
             mybbPost.message = fixResult.getFixedText();
             mybbPostsRepository.save(mybbPost);
           }

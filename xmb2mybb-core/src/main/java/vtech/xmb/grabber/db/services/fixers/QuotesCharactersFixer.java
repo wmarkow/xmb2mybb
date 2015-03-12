@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
 
 @Component
-public class QuotesCharactersFixer extends StringFixer {
+public class QuotesCharactersFixer extends StringFixer<FixResult> {
 
   @Override
   public FixResult fix(final String textToFix) {

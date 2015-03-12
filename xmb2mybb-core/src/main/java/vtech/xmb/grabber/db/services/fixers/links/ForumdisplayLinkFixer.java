@@ -13,11 +13,12 @@ import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
+import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
-public class ForumdisplayLinkFixer extends StringFixer {
+public class ForumdisplayLinkFixer extends StringFixer<LinkFixResult> {
   private final static Logger LOGGER = Logger.getLogger(ForumdisplayLinkFixer.class);
 
   @Autowired
@@ -28,9 +29,9 @@ public class ForumdisplayLinkFixer extends StringFixer {
   private String mybbForumLinksPrefix;
 
   @Override
-  public FixResult fix(String textToFix) throws ParseException {
+  public LinkFixResult fix(String textToFix) throws ParseException {
+    LinkFixResult fixResult = new LinkFixResult();
     String result = textToFix;
-    boolean fixed = false;
 
     // wino.org.pl/forum/forumdisplay.php?fid=38
     Pattern pattern = Pattern.compile(xmbForumLinksPrefix + "forumdisplay.php\\?fid=\\d+");
@@ -39,29 +40,31 @@ public class ForumdisplayLinkFixer extends StringFixer {
     Map<String, String> toReplace = new HashMap<String, String>();
     while (matcher.find()) {
       final String xmbLinkAsString = matcher.group();
-      final String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
+      String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
 
+      if(mybbLinkAsString == null){
+        mybbLinkAsString = createMybbLink(0);
+        LOGGER.warn(String.format("XMB forum link converted to null: %s -> %s", xmbLinkAsString, mybbLinkAsString));
+        fixResult.setHasInvalidLinks(true);
+      }
+      
       toReplace.put(xmbLinkAsString, mybbLinkAsString);
     }
 
     for (String file : toReplace.keySet()) {
       result = result.replace(file, toReplace.get(file));
-      fixed = true;
+      fixResult.setFixRequired(true);
     }
 
-    FixResult fixResult = new FixResult();
     fixResult.setFixedText(result);
-    fixResult.setFixRequired(fixed);
+    
     return fixResult;
   }
 
   private String convertXmbToMybb(String xmbLink) {
     String[] splits = xmbLink.split("fid=");
     if (splits.length != 2) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB forum link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
 
     try {
@@ -69,18 +72,12 @@ public class ForumdisplayLinkFixer extends StringFixer {
 
       MybbForum mybbForum = mybbForumsCache.findByXmbForumId(fid);
       if (mybbForum == null) {
-        final String converted = createMybbLink(0);
-        LOGGER.warn(String.format("XMB forum link converted to null: %s -> %s", xmbLink, converted));
-
-        return converted;
+        return null;
       }
 
       return createMybbLink(mybbForum.fid);
     } catch (NumberFormatException ex) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB forum link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
   }
 

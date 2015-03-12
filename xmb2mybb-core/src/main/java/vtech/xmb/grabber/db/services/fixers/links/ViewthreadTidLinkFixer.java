@@ -6,20 +6,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.cache.MybbThreadsCache;
-import vtech.xmb.grabber.db.domain.fixers.FixResult;
+import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
-public class ViewthreadTidLinkFixer extends StringFixer {
+public class ViewthreadTidLinkFixer extends StringFixer<LinkFixResult> {
   private final static Logger LOGGER = Logger.getLogger(ViewthreadTidLinkFixer.class);
 
   @Autowired
@@ -30,9 +28,9 @@ public class ViewthreadTidLinkFixer extends StringFixer {
   private String mybbForumLinksPrefix;
 
   @Override
-  public FixResult fix(final String textToFix) throws ParseException {
+  public LinkFixResult fix(final String textToFix) throws ParseException {
+    LinkFixResult fixResult = new LinkFixResult();
     String result = textToFix;
-    boolean fixed = false;
 
     Pattern pattern = Pattern.compile(xmbForumLinksPrefix + "viewthread.php\\?tid=\\d+");
     Matcher matcher = pattern.matcher(result);
@@ -40,29 +38,30 @@ public class ViewthreadTidLinkFixer extends StringFixer {
     Map<String, String> toReplace = new HashMap<String, String>();
     while (matcher.find()) {
       final String xmbLinkAsString = matcher.group();
-      final String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
+      String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
+
+      if (mybbLinkAsString == null) {
+        mybbLinkAsString = createMybbLink(0);
+        LOGGER.warn(String.format("XMB thread link converted to null: %s -> %s", xmbLinkAsString, mybbLinkAsString));
+        fixResult.setHasInvalidLinks(true);
+      }
 
       toReplace.put(xmbLinkAsString, mybbLinkAsString);
     }
 
     for (String file : toReplace.keySet()) {
       result = result.replace(file, toReplace.get(file));
-      fixed = true;
+      fixResult.setFixRequired(true);
     }
 
-    FixResult fixResult = new FixResult();
     fixResult.setFixedText(result);
-    fixResult.setFixRequired(fixed);
     return fixResult;
   }
 
   private String convertXmbToMybb(String xmbLink) {
     String[] splits = xmbLink.split("tid=");
     if (splits.length != 2) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB thread link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
 
     try {
@@ -70,18 +69,12 @@ public class ViewthreadTidLinkFixer extends StringFixer {
 
       MybbThread mybbThread = mybbThreadsCache.findByXmbThreadId(tid);
       if (mybbThread == null) {
-        final String converted = createMybbLink(0);
-        LOGGER.warn(String.format("XMB thread link converted to null: %s -> %s", xmbLink, converted));
-
-        return converted;
+        return null;
       }
 
       return createMybbLink(mybbThread.tid);
     } catch (NumberFormatException ex) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB thread link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
   }
 

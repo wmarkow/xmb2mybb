@@ -17,7 +17,7 @@ import vtech.xmb.grabber.db.domain.fixers.XmbQuote2MybbQuote;
 import vtech.xmb.grabber.db.domain.fixers.XmbQuoteParser;
 
 @Component
-public class RquoteFixer extends StringFixer {
+public class RquoteFixer extends StringFixer<FixResult> {
   private final static Logger LOGGER = Logger.getLogger(RquoteFixer.class);
 
   @Autowired

@@ -6,11 +6,11 @@ import java.util.List;
 
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
 
-public class FixersChain extends StringFixer {
+public class FixersChain extends StringFixer<FixResult> {
 
-  private List<StringFixer> chain = new ArrayList<StringFixer>();
+  private List<StringFixer<FixResult>> chain = new ArrayList<StringFixer<FixResult>>();
 
-  public FixersChain addFixerToChain(StringFixer fixer) {
+  public FixersChain addFixerToChain(StringFixer<FixResult> fixer) {
     chain.add(fixer);
 
     return this;
@@ -21,7 +21,7 @@ public class FixersChain extends StringFixer {
     String fixedString = textToFix;
     boolean fixRequired = false;
 
-    for (StringFixer fixer : chain) {
+    for (StringFixer<FixResult> fixer : chain) {
       FixResult fixResult = fixer.fix(fixedString);
 
       fixRequired |= fixResult.isFixRequired();

@@ -4,7 +4,7 @@ import java.text.ParseException;
 
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
 
-public abstract class StringFixer {
+public abstract class StringFixer<T extends FixResult> {
 
-  public abstract FixResult fix(String textToFix) throws ParseException;
+  public abstract T fix(String textToFix) throws ParseException;
 }

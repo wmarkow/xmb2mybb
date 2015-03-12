@@ -9,7 +9,7 @@ import org.springframework.web.util.HtmlUtils;
 import vtech.xmb.grabber.db.domain.fixers.FixResult;
 
 @Component
-public class HtmlEntityFixer extends StringFixer {
+public class HtmlEntityFixer extends StringFixer<FixResult> {
   private final static Logger LOGGER = Logger.getLogger(HtmlEntityFixer.class);
 
   @Override

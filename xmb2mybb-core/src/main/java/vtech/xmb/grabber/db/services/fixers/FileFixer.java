@@ -15,7 +15,7 @@ import vtech.xmb.grabber.db.mybb.entities.MybbAttachment;
 import vtech.xmb.grabber.db.mybb.repositories.MybbAttachmentsRepository;
 
 @Component
-public class FileFixer extends StringFixer {
+public class FileFixer extends StringFixer<FixResult> {
   private final static Logger LOGGER = Logger.getLogger(FileFixer.class);
 
   @Autowired

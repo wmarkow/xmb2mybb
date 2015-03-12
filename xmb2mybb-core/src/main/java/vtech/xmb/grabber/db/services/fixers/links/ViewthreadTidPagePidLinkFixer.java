@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import vtech.xmb.grabber.db.domain.fixers.FixResult;
+import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
 import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
-public class ViewthreadTidPagePidLinkFixer extends StringFixer {
+public class ViewthreadTidPagePidLinkFixer extends StringFixer<LinkFixResult> {
   private final static Logger LOGGER = Logger.getLogger(ViewthreadTidPagePidLinkFixer.class);
 
   @Autowired
@@ -28,9 +28,9 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer {
   private String mybbForumLinksPrefix;
 
   @Override
-  public FixResult fix(final String textToFix) throws ParseException {
+  public LinkFixResult fix(final String textToFix) throws ParseException {
+    LinkFixResult fixResult = new LinkFixResult();
     String result = textToFix;
-    boolean fixed = false;
 
     Pattern pattern = Pattern.compile(xmbForumLinksPrefix + "viewthread.php\\?tid=\\d+(&page=\\d+#pid\\d+|#pid\\d+)");
     Matcher matcher = pattern.matcher(result);
@@ -38,11 +38,12 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer {
     Map<String, String> toReplace = new HashMap<String, String>();
     while (matcher.find()) {
       final String xmbLinkAsString = matcher.group();
-      final String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
+      String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
 
       if (mybbLinkAsString == null) {
-        LOGGER.warn(String.format("Can not convert XMB link %s to its MyBB link.", xmbLinkAsString));
-        continue;
+        mybbLinkAsString = createMybbLink(0);
+        LOGGER.warn(String.format("XMB post link converted to null: %s -> %s", xmbLinkAsString, mybbLinkAsString));
+        fixResult.setHasInvalidLinks(true);
       }
 
       toReplace.put(xmbLinkAsString, mybbLinkAsString);
@@ -50,22 +51,17 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer {
 
     for (String file : toReplace.keySet()) {
       result = result.replace(file, toReplace.get(file));
-      fixed = true;
+      fixResult.setFixRequired(true);
     }
 
-    FixResult fixResult = new FixResult();
     fixResult.setFixedText(result);
-    fixResult.setFixRequired(fixed);
     return fixResult;
   }
 
   private String convertXmbToMybb(String xmbLink) {
     String[] splits = xmbLink.split("#pid");
     if (splits.length != 2) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB post link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
 
     try {
@@ -73,18 +69,12 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer {
 
       MybbPost mybbPost = mybbPostsRepository.findByXmbpid(pid);
       if (mybbPost == null) {
-        final String converted = createMybbLink(0);
-        LOGGER.warn(String.format("XMB post link converted to null: %s -> %s", xmbLink, converted));
-
-        return converted;
+        return null;
       }
 
       return createMybbLink(mybbPost.pid);
     } catch (NumberFormatException ex) {
-      final String converted = createMybbLink(0);
-      LOGGER.warn(String.format("XMB post link converted to null: %s -> %s", xmbLink, converted));
-
-      return converted;
+      return null;
     }
   }
 
