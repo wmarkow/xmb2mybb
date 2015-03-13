@@ -29,6 +29,10 @@ public class MybbUsersCache {
     return getByUsernameUsersMap().get(username);
   }
   
+  public int getSize(){
+    return getByUsernameUsersMap().keySet().size();
+  }
+  
   private synchronized Map<String, MybbUser> getByUsernameUsersMap() {
     if (byUsernameUsersMap == null) {
       LOGGER.info(String.format("Executing MybbUsersRepository.findAll"));

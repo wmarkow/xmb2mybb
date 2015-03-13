@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
+import vtech.xmb.grabber.db.domain.ProgressCalculator;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
 import vtech.xmb.grabber.db.mybb.entities.MybbUserFields;
 import vtech.xmb.grabber.db.mybb.repositories.MybbUserFieldsRepository;
@@ -33,13 +34,17 @@ public class MigrateUsers {
   private MybbUsersCache mybbUsersCache;
 
   public void migrateUsers() {
-
     LOGGER.info("Users migration started.");
     ROOT_LOGGER.info("Users migration started.");
 
     List<XmbMember> xmbMembers = (List<XmbMember>) xmbMembersRepository.findAll();
 
-    for (XmbMember xmbMember : xmbMembers) {
+    ProgressCalculator progressCalc = new ProgressCalculator(xmbMembers.size());
+    
+    LOGGER.info(String.format("Found %s to migrate in the XMB database.", xmbMembers.size()));
+    ROOT_LOGGER.info(String.format("Found %s to migrate in the XMB database.", xmbMembers.size()));
+
+    for (XmbMember xmbMember : xmbMembers) { 
       MybbUser mybbUser = new MybbUser();
 
       applyDefaults(mybbUser);
@@ -79,23 +84,27 @@ public class MigrateUsers {
 
       MybbUser savedUser = mybbUsersRepository.save(mybbUser);
 
-      if (isNullOrEmpty(xmbMember.bio) && isNullOrEmpty(xmbMember.location)) {
-        continue;
+      if (!isNullOrEmpty(xmbMember.bio) || !isNullOrEmpty(xmbMember.location)) {
+        MybbUserFields mybbUserFields = new MybbUserFields();
+        mybbUserFields.ufid = savedUser.uid;
+        mybbUserFields.location = xmbMember.location;
+        mybbUserFields.bio = xmbMember.bio;
+        mybbUserFields.sex = "Undisclosed";
+
+        mybbUserFieldsRepository.save(mybbUserFields);
       }
 
-      MybbUserFields mybbUserFields = new MybbUserFields();
-      mybbUserFields.ufid = savedUser.uid;
-      mybbUserFields.location = xmbMember.location;
-      mybbUserFields.bio = xmbMember.bio;
-      mybbUserFields.sex = "Undisclosed";
-
-      mybbUserFieldsRepository.save(mybbUserFields);
+      progressCalc.hit();
+      
+      progressCalc.logProgress(LOGGER, ROOT_LOGGER);
     }
 
     mybbUsersCache.evictCache();
 
     LOGGER.info("Users migration finished.");
     ROOT_LOGGER.info("Users migration finished.");
+    LOGGER.info(String.format("Migrated %s users to MyBB.", mybbUsersCache.getSize()));
+    ROOT_LOGGER.info(String.format("Migrated %s users to MyBB.", mybbUsersCache.getSize()));
   }
 
   private void updateStatus(MybbUser mybbUser, String xmbStatus) {
@@ -135,8 +144,8 @@ public class MigrateUsers {
     if (xmbBirthDay.trim().isEmpty()) {
       return "";
     }
-    
-    if(xmbBirthDay.equals("0000-00-00")){
+
+    if (xmbBirthDay.equals("0000-00-00")) {
       return "";
     }
 
