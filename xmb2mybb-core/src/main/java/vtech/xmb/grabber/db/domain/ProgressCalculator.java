@@ -27,9 +27,13 @@ public class ProgressCalculator {
   }
 
   public void logProgress(Logger... loggers) {
+    logProgress(10, loggers);
+  }
+
+  public void logProgress(int resolution, Logger... loggers) {
     int currentRestrictedPercentProgress = getPercentProgress();
-    
-    if (lastRestrictedPercentProgress / 10 == currentRestrictedPercentProgress / 10) {
+
+    if (lastRestrictedPercentProgress / resolution == currentRestrictedPercentProgress / resolution) {
       return;
     }
 

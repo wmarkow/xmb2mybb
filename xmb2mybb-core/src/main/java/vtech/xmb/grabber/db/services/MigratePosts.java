@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.MybbThreadsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
-import vtech.xmb.grabber.db.mybb.entities.MybbForum;
+import vtech.xmb.grabber.db.domain.ProgressCalculator;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
@@ -27,6 +27,7 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbPostsRepository;
 @Service
 public class MigratePosts {
   private final static Logger LOGGER = Logger.getLogger(MigratePosts.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private XmbPostsRepository xmbPostsRepository;
@@ -50,6 +51,14 @@ public class MigratePosts {
   }
 
   private void migratePostsFirstStage() {
+    LOGGER.info("Posts migration started.");
+    ROOT_LOGGER.info("Posts migration started.");
+
+    final long xmbCount = xmbPostsRepository.count();
+    ProgressCalculator progressCalc = new ProgressCalculator(xmbCount);
+    LOGGER.info(String.format("Found %s posts to migrate from XMB.", xmbCount));
+    ROOT_LOGGER.info(String.format("Found %s posts to migrate from XMB.", xmbCount));
+
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
@@ -68,18 +77,15 @@ public class MigratePosts {
       for (XmbPost xmbPost : xmbPosts) {
         MybbPost mybbPost = new MybbPost();
 
-        // derive forum id
-        final MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbPost.fid);
-        if (mybbForum == null) {
-          continue;
-        }
-        mybbPost.fid = mybbForum.fid;
-
         // derive thread id
         final MybbThread mybbThread = mybbThreadsCache.findByXmbPost(xmbPost);
         if (mybbThread == null) {
+          LOGGER.warn(String.format("MyBB thread with XMB tid=%s does not exist. XMB post with pid=%s, tid=%s, fid=%s and subject=%s will not be migrated.",
+              xmbPost.tid, xmbPost.pid, xmbPost.tid, xmbPost.fid, xmbPost.subject));
           continue;
         }
+
+        mybbPost.fid = mybbThread.fid;
         mybbPost.tid = mybbThread.tid;
         mybbPost.subject = getFixedSubject(xmbPost);
         mybbPost.message = getFixedMessage(xmbPost);
@@ -103,7 +109,17 @@ public class MigratePosts {
         mybbPostsRepository.save(mybbPost);
       }
       pageRequest = pageRequest.next();
+
+      progressCalc.hit(xmbPosts.size());
+      progressCalc.logProgress(1, LOGGER, ROOT_LOGGER);
     }
+
+    final long mybbCount = mybbPostsRepository.count();
+    final long notMigrated = xmbCount - mybbCount;
+    LOGGER.info(String.format("Found %s posts in MyBB after migration. %s posts not migrated.", mybbCount, notMigrated));
+    ROOT_LOGGER.info(String.format("Found %s posts in MyBB after migration. %s posts not migrated.", mybbCount, notMigrated));
+    LOGGER.info("Posts migration finished.");
+    ROOT_LOGGER.info("Posts migration finished.");
   }
 
   private FixersChain getFixersChain() {

@@ -29,8 +29,8 @@ public class MigrateAll {
     // migrateUsers.migrateUsers();
     // migrateForums.migrateForums();
     // migrateModeratorPermissions.migrateModeratorPermissions();
-    migrateThreads.migrateThreads();
-    // migratePosts.migratePosts();
+//    migrateThreads.migrateThreads();
+     migratePosts.migratePosts();
     // migratePolls.migratePolls();
     // migratePrivateMessages.migrateU2Us();
     // migrateAttachments.migrateAttachments();

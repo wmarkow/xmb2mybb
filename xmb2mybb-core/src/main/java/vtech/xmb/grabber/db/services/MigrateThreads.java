@@ -88,7 +88,7 @@ public class MigrateThreads {
         if (mybbUser == null) {
           mybbThread.uid = 0L;
           mybbThread.username = xmbThread.author;
-          LOGGER.warn(String.format("Thread's '%s' author (%s) does not exist. Is the author unregistered?", xmbThread.subject, xmbThread.author));
+//          LOGGER.warn(String.format("Thread's '%s' author (%s) does not exist. Is the author unregistered?", xmbThread.subject, xmbThread.author));
         } else {
           mybbThread.uid = mybbUser.uid;
           mybbThread.username = xmbThread.author;
