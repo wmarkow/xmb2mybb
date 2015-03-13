@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.cache.MybbForumsCache;
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
+import vtech.xmb.grabber.db.domain.ProgressCalculator;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
 import vtech.xmb.grabber.db.mybb.entities.MybbUser;
@@ -25,6 +26,7 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbThreadsRepository;
 @Service
 public class MigrateThreads {
   private final static Logger LOGGER = Logger.getLogger(MigrateThreads.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private XmbThreadsRepository xmbThreadsRepository;
@@ -42,17 +44,19 @@ public class MigrateThreads {
   private FixersChain fixersChain;
 
   public void migrateThreads() {
-    migrateThreadsFirstStage();
-  }
+    LOGGER.info("Threads migration started.");
+    ROOT_LOGGER.info("Threads migration started.");
 
-  private void migrateThreadsFirstStage() {
+    final long xmbCount = xmbThreadsRepository.count();
+    ProgressCalculator progressCalc = new ProgressCalculator(xmbCount);
+    LOGGER.info(String.format("Found %s threads to migrate from XMB.", xmbCount));
+    ROOT_LOGGER.info(String.format("Found %s threads to migrate from XMB.", xmbCount));
+
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
 
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
-
-    FixersChain fixersChain = getFixersChain();
 
     while (shouldContinue) {
       Page<XmbThread> xmbThreadsPage = (Page<XmbThread>) xmbThreadsRepository.findAll(pageRequest);
@@ -73,6 +77,8 @@ public class MigrateThreads {
         }
         final MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbThread.fid);
         if (mybbForum == null) {
+          LOGGER.warn(String.format("MyBB forum with XMB fid=%s does not exist. XMB thread with tid=%s, fid=%s and subject=%s will not be migrated.",
+              xmbThread.fid, xmbThread.tid, xmbThread.fid, xmbThread.subject));
           continue;
         }
         mybbThread.fid = mybbForum.fid;
@@ -82,6 +88,7 @@ public class MigrateThreads {
         if (mybbUser == null) {
           mybbThread.uid = 0L;
           mybbThread.username = xmbThread.author;
+          LOGGER.warn(String.format("Thread's '%s' author (%s) does not exist. Is the author unregistered?", xmbThread.subject, xmbThread.author));
         } else {
           mybbThread.uid = mybbUser.uid;
           mybbThread.username = xmbThread.author;
@@ -97,7 +104,17 @@ public class MigrateThreads {
         mybbThreadsRepository.save(mybbThread);
       }
       pageRequest = pageRequest.next();
+
+      progressCalc.hit(xmbThreads.size());
+      progressCalc.logProgress(LOGGER, ROOT_LOGGER);
     }
+
+    final long mybbCount = mybbThreadsRepository.count();
+    final long notMigrated = xmbCount - mybbCount;
+    LOGGER.info(String.format("Found %s threads in MyBB after migration. %s threads not migrated.", mybbCount, notMigrated));
+    ROOT_LOGGER.info(String.format("Found %s threads in MyBB after migration. %s threads not migrated.", mybbCount, notMigrated));
+    LOGGER.info("Threads migration finished.");
+    ROOT_LOGGER.info("Threads migration finished.");
   }
 
   private FixersChain getFixersChain() {

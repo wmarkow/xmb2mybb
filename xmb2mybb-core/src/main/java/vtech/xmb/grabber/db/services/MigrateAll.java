@@ -26,14 +26,14 @@ public class MigrateAll {
   private PostsFixerService postsFixerService;
 
   public void migrate() {
-//     migrateUsers.migrateUsers();
-//     migrateForums.migrateForums();
-     migrateModeratorPermissions.migrateModeratorPermissions();
-    // migrateThreads.migrateThreads();
+    // migrateUsers.migrateUsers();
+    // migrateForums.migrateForums();
+    // migrateModeratorPermissions.migrateModeratorPermissions();
+    migrateThreads.migrateThreads();
     // migratePosts.migratePosts();
     // migratePolls.migratePolls();
     // migratePrivateMessages.migrateU2Us();
     // migrateAttachments.migrateAttachments();
-//    postsFixerService.fixPostsContent();
+    // postsFixerService.fixPostsContent();
   }
 }
