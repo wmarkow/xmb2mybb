@@ -16,7 +16,8 @@ import vtech.xmb.grabber.db.xmb.entities.XmbForum;
 @Service
 public class MigrateModeratorPermissions {
   private final static Logger LOGGER = Logger.getLogger(MigrateModeratorPermissions.class);
-  
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
+
   @Autowired
   private XmbForumsCache xmbForumsCache;
   @Autowired
@@ -27,6 +28,9 @@ public class MigrateModeratorPermissions {
   private MybbModeratorsRepository mybbModeratorsRepository;
 
   public void migrateModeratorPermissions() {
+    LOGGER.info("Moderators migration started.");
+    ROOT_LOGGER.info("Moderators migration started.");
+
     for (XmbForum xmbForum : xmbForumsCache.findAll()) {
       MybbForum mybbForum = mybbForumsCache.findByXmbForumId(xmbForum.fid);
 
@@ -34,7 +38,8 @@ public class MigrateModeratorPermissions {
         MybbUser mybbUser = mybbUsersCache.findUserByName(moderator);
 
         if (mybbUser == null) {
-          LOGGER.warn(String.format("Could not find a user for username = \"%s\". Moderator rights will not be migrated.", moderator));
+          LOGGER.warn(String.format("Could not find a user with username = '%s' (a moderator of forum '%s'). Moderator rights will not be migrated.", moderator,
+              xmbForum.name));
 
           continue;
         }
@@ -47,6 +52,9 @@ public class MigrateModeratorPermissions {
         mybbModeratorsRepository.save(mybbModerator);
       }
     }
+
+    LOGGER.info("Moderators migration finished.");
+    ROOT_LOGGER.info("Moderators migration finished.");
   }
 
   private void applyDefaults(MybbModerator mybbModerator) {

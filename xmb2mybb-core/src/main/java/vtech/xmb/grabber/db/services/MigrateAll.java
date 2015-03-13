@@ -26,9 +26,9 @@ public class MigrateAll {
   private PostsFixerService postsFixerService;
 
   public void migrate() {
-     migrateUsers.migrateUsers();
-     migrateForums.migrateForums();
-    // migrateModeratorPermissions.migrateModeratorPermissions();
+//     migrateUsers.migrateUsers();
+//     migrateForums.migrateForums();
+     migrateModeratorPermissions.migrateModeratorPermissions();
     // migrateThreads.migrateThreads();
     // migratePosts.migratePosts();
     // migratePolls.migratePolls();

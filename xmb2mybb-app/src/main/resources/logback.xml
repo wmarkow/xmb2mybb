@@ -37,12 +37,19 @@
 		</encoder>
 		<file>migration-${bySecond}-users.log</file>
 	</appender>
-	
+
 	<appender name="FORUMS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
 		<file>migration-${bySecond}-forums.log</file>
+	</appender>
+
+	<appender name="MODERATORS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-moderators.log</file>
 	</appender>
 
 	<root level="INFO">
@@ -59,10 +66,15 @@
 		additivity="false">
 		<appender-ref ref="USERS_SERVICE_APPENDER" />
 	</logger>
-	
-	<logger name="vtech.xmb.grabber.db.services.MigrateForums" level="INFO"
-		additivity="false">
+
+	<logger name="vtech.xmb.grabber.db.services.MigrateForums"
+		level="INFO" additivity="false">
 		<appender-ref ref="FORUMS_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.MigrateModeratorPermissions"
+		level="INFO" additivity="false">
+		<appender-ref ref="MODERATORS_SERVICE_APPENDER" />
 	</logger>
 
 </configuration>
