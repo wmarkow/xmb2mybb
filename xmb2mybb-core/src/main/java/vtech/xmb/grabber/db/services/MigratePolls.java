@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vtech.xmb.grabber.db.cache.MybbThreadsCache;
+import vtech.xmb.grabber.db.domain.ProgressCalculator;
 import vtech.xmb.grabber.db.mybb.entities.MybbPoll;
 import vtech.xmb.grabber.db.mybb.entities.MybbPollVote;
 import vtech.xmb.grabber.db.mybb.entities.MybbThread;
@@ -25,7 +26,8 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbVoteResultRepository;
 @Service
 public class MigratePolls {
   private final static Logger LOGGER = Logger.getLogger(MigratePolls.class);
-  
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
+
   @Autowired
   private XmbVoteDescRepository xmbVoteDescRepository;
   @Autowired
@@ -41,14 +43,21 @@ public class MigratePolls {
   private MybbThreadsRepository mybbThreadsRepository;
 
   public void migratePolls() {
+    LOGGER.info("Polls migration started.");
+    ROOT_LOGGER.info("Polls migration started.");
+
     List<XmbVoteDesc> xmbVoteDescs = (List<XmbVoteDesc>) xmbVoteDescRepository.findAll();
+
+    final long xmbCount = xmbVoteDescs.size();
+    LOGGER.info(String.format("Found %s polls to migrate from XMB.", xmbCount));
+    ROOT_LOGGER.info(String.format("Found %s polls to migrate from XMB.", xmbCount));
 
     for (XmbVoteDesc xmbVoteDesc : xmbVoteDescs) {
       List<XmbVoteResult> xmbVoteResults = xmbVoteResultRepository.findByVoteId(xmbVoteDesc.voteId);
 
       if (xmbVoteResults.size() == 0) {
-        LOGGER.warn(String.format("A vote with empty options voteId=%s, voteText=%s. This poll will not be migrated.", xmbVoteDesc.voteId,
-            xmbVoteDesc.voteText));
+        LOGGER.warn(String
+            .format("A vote with empty options voteId=%s, voteText=%s. This poll will not be migrated.", xmbVoteDesc.voteId, xmbVoteDesc.voteText));
         continue;
       }
 
@@ -57,6 +66,9 @@ public class MigratePolls {
       final MybbThread mybbThread = mybbThreadsCache.findByXmbVoteDesc(xmbVoteDesc);
 
       if (mybbThread == null) {
+        LOGGER.warn(String.format(
+            "Can not find a MyBB thread that owns the poll with XMB poll_id=%s, description='%s' tid=%s. This poll will not be migrated.", xmbVoteDesc.voteId,
+            xmbVoteDesc.voteText, xmbVoteDesc.topicId));
         continue;
       }
       poll.tid = mybbThread.tid;
@@ -74,6 +86,13 @@ public class MigratePolls {
 
     // evict the cache
     mybbThreadsCache.evictCache();
+    
+    final long mybbCount = mybbPollsRepository.count();
+    final long notMigrated = xmbCount - mybbCount;
+    LOGGER.info(String.format("Found %s polls in MyBB after migration. %s polls not migrated.", mybbCount, notMigrated));
+    ROOT_LOGGER.info(String.format("Found %s polls in MyBB after migration. %s polls not migrated.", mybbCount, notMigrated));
+    LOGGER.info("Polls migration finished.");
+    ROOT_LOGGER.info("Polls migration finished.");
   }
 
   private void update(MybbPoll poll, List<XmbVoteResult> xmbVoteResults) {
