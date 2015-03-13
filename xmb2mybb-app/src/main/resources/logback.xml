@@ -21,21 +21,28 @@
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
-		<file>migration.log-${bySecond}</file>
+		<file>migration-${bySecond}.log</file>
 	</appender>
 
 	<appender name="POST_FIXER_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
-		<file>migration-post-fixer.log-${bySecond}</file>
+		<file>migration-${bySecond}-post-fixer.log</file>
 	</appender>
 
 	<appender name="USERS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
-		<file>migration-users.log-${bySecond}</file>
+		<file>migration-${bySecond}-users.log</file>
+	</appender>
+	
+	<appender name="FORUMS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-forums.log</file>
 	</appender>
 
 	<root level="INFO">
@@ -51,6 +58,11 @@
 	<logger name="vtech.xmb.grabber.db.services.MigrateUsers" level="INFO"
 		additivity="false">
 		<appender-ref ref="USERS_SERVICE_APPENDER" />
+	</logger>
+	
+	<logger name="vtech.xmb.grabber.db.services.MigrateForums" level="INFO"
+		additivity="false">
+		<appender-ref ref="FORUMS_SERVICE_APPENDER" />
 	</logger>
 
 </configuration>

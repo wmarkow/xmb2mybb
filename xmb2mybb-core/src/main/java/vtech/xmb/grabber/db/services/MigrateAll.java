@@ -27,7 +27,7 @@ public class MigrateAll {
 
   public void migrate() {
      migrateUsers.migrateUsers();
-    // migrateForums.migrateForums();
+     migrateForums.migrateForums();
     // migrateModeratorPermissions.migrateModeratorPermissions();
     // migrateThreads.migrateThreads();
     // migratePosts.migratePosts();

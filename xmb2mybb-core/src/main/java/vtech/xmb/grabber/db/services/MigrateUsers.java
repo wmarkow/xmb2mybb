@@ -41,8 +41,8 @@ public class MigrateUsers {
 
     ProgressCalculator progressCalc = new ProgressCalculator(xmbMembers.size());
     
-    LOGGER.info(String.format("Found %s to migrate in the XMB database.", xmbMembers.size()));
-    ROOT_LOGGER.info(String.format("Found %s to migrate in the XMB database.", xmbMembers.size()));
+    LOGGER.info(String.format("Found %s users to migrate from XMB.", xmbMembers.size()));
+    ROOT_LOGGER.info(String.format("Found %s users to migrate from XMB.", xmbMembers.size()));
 
     for (XmbMember xmbMember : xmbMembers) { 
       MybbUser mybbUser = new MybbUser();
@@ -101,10 +101,10 @@ public class MigrateUsers {
 
     mybbUsersCache.evictCache();
 
+    LOGGER.info(String.format("Found %s users in MyBB after migration.", mybbUsersCache.getSize()));
+    ROOT_LOGGER.info(String.format("Found %s users in MyBB after migration.", mybbUsersCache.getSize()));
     LOGGER.info("Users migration finished.");
     ROOT_LOGGER.info("Users migration finished.");
-    LOGGER.info(String.format("Migrated %s users to MyBB.", mybbUsersCache.getSize()));
-    ROOT_LOGGER.info(String.format("Migrated %s users to MyBB.", mybbUsersCache.getSize()));
   }
 
   private void updateStatus(MybbUser mybbUser, String xmbStatus) {

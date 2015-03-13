@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,8 @@ import vtech.xmb.grabber.db.xmb.entities.XmbForum;
 
 @Service
 public class MigrateForums {
+  private final static Logger LOGGER = Logger.getLogger(MigrateForums.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private XmbForumsCache xmbForumsCache;
@@ -24,14 +27,25 @@ public class MigrateForums {
   private MybbForumsCache mybbForumsCache;
 
   public void migrateForums() {
+    LOGGER.info("Forums migration started.");
+    ROOT_LOGGER.info("Forums migration started.");
+
     migrateForumsFirstStage();
     fixParents();
     fixParentsList();
 
     mybbForumsCache.evictCache();
+
+    LOGGER.info(String.format("Found %s forums in MyBB after migration.", mybbForumsCache.getSize()));
+    ROOT_LOGGER.info(String.format("Found %s forums in MyBB after migration.", mybbForumsCache.getSize()));
+    LOGGER.info("Forums migration finished.");
+    ROOT_LOGGER.info("Forums migration finished.");
   }
 
   private void migrateForumsFirstStage() {
+    LOGGER.info(String.format("Found %s forums to migrate from XMB.", xmbForumsCache.findAll().size()));
+    ROOT_LOGGER.info(String.format("Found %s forums to migrate from XMB.", xmbForumsCache.findAll().size()));
+
     for (XmbForum xmbForum : xmbForumsCache.findAll()) {
       MybbForum mybbForum = new MybbForum();
 

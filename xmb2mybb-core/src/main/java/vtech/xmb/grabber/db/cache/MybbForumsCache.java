@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
 import vtech.xmb.grabber.db.mybb.repositories.MybbForumsRepository;
-import vtech.xmb.grabber.db.xmb.entities.XmbForum;
-import vtech.xmb.grabber.db.xmb.entities.XmbPost;
-import vtech.xmb.grabber.db.xmb.entities.XmbThread;
 
 @Component
 public class MybbForumsCache {
@@ -21,7 +18,7 @@ public class MybbForumsCache {
 
   private volatile List<MybbForum> mybbForums = null;
 
-  public synchronized List<MybbForum> findAll() {
+  private synchronized List<MybbForum> findAll() {
     if (mybbForums == null) {
       LOGGER.info("Executing MybbForumsRepository.findAll()");
 
@@ -35,6 +32,10 @@ public class MybbForumsCache {
     LOGGER.info("Evicting the MybbForumsCache");
 
     mybbForums = null;
+  }
+
+  public int getSize() {
+    return findAll().size();
   }
 
   public MybbForum findByXmbForumId(Long xmbForumId) {
