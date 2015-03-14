@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.FileCopyUtils;
 
+import vtech.xmb.grabber.db.domain.ProgressCalculator;
 import vtech.xmb.grabber.db.mybb.entities.MybbAttachment;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbAttachmentsRepository;
@@ -28,6 +29,7 @@ import vtech.xmb.grabber.db.xmb.repositories.XmbAttachmentsRepository;
 @Service
 public class MigrateAttachments {
   private final static Logger LOGGER = Logger.getLogger(MigrateAttachments.class);
+  private final static Logger ROOT_LOGGER = Logger.getRootLogger();
 
   @Autowired
   private XmbAttachmentsRepository xmbAttachmentsRepository;
@@ -42,10 +44,20 @@ public class MigrateAttachments {
   private String mybbAttachmentsPath;
 
   public void migrateAttachments() {
+    LOGGER.info("Posts attachments started.");
+    ROOT_LOGGER.info("Posts attachments started.");
+
+    final long xmbCount = xmbAttachmentsRepository.count();
+    ProgressCalculator progressCalc = new ProgressCalculator(xmbCount);
+    LOGGER.info(String.format("Found %s attachments to migrate from XMB.", xmbCount));
+    ROOT_LOGGER.info(String.format("Found %s attachments to migrate from XMB.", xmbCount));
+
     final int pageSize = 1000;
     int pageNumber = 0;
     boolean shouldContinue = true;
 
+    int thumbnailsCount = 0;
+    
     Pageable pageRequest = new PageRequest(pageNumber, pageSize);
 
     while (shouldContinue) {
@@ -60,6 +72,7 @@ public class MigrateAttachments {
       for (XmbAttachment xmbAttachment : xmbAttachments) {
         if (xmbAttachment.parentid > 0) {
           // this is an image thumbnail; do not migrate it
+          thumbnailsCount ++;
           continue;
         }
 
@@ -112,7 +125,17 @@ public class MigrateAttachments {
       }
 
       pageRequest = pageRequest.next();
+
+      progressCalc.hit(xmbAttachments.size());
+      progressCalc.logProgress(LOGGER, ROOT_LOGGER);
     }
+
+    final long mybbCount = mybbAttachmentsRepository.count();
+    final long notMigrated = xmbCount - mybbCount;
+    LOGGER.info(String.format("Found %s attachments in MyBB after migration. %s attachments not migrated (%s are thumbnails).", mybbCount, notMigrated, thumbnailsCount));
+    ROOT_LOGGER.info(String.format("Found %s attachments in MyBB after migration. %s attachments not migrated (%s are thumbnails).", mybbCount, notMigrated, thumbnailsCount));
+    LOGGER.info("Attachments migration finished.");
+    ROOT_LOGGER.info("Attachments migration finished.");
   }
 
   private String deriveAttachFileName(long dateline, long userId, String attachmentname) {
