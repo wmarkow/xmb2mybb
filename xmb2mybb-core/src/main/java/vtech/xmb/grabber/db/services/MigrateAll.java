@@ -31,8 +31,8 @@ public class MigrateAll {
     // migrateModeratorPermissions.migrateModeratorPermissions();
 //    migrateThreads.migrateThreads();
 //     migratePosts.migratePosts();
-     migratePolls.migratePolls();
-    // migratePrivateMessages.migrateU2Us();
+//     migratePolls.migratePolls();
+     migratePrivateMessages.migrateU2Us();
     // migrateAttachments.migrateAttachments();
     // postsFixerService.fixPostsContent();
   }

@@ -72,6 +72,13 @@
 		</encoder>
 		<file>migration-${bySecond}-polls.log</file>
 	</appender>
+	
+	<appender name="PMS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-pms.log</file>
+	</appender>
 
 	<root level="INFO">
 		<appender-ref ref="MAIN_FILE" />
@@ -111,6 +118,11 @@
 	<logger name="vtech.xmb.grabber.db.services.MigratePolls"
 		level="INFO" additivity="false">
 		<appender-ref ref="POLLS_SERVICE_APPENDER" />
+	</logger>
+	
+	<logger name="vtech.xmb.grabber.db.services.MigratePrivateMessages"
+		level="INFO" additivity="false">
+		<appender-ref ref="PMS_SERVICE_APPENDER" />
 	</logger>
 
 </configuration>
