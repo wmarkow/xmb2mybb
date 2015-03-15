@@ -1,6 +1,5 @@
 package vtech.xmb.grabber.db.services.fixers.links;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -14,21 +13,16 @@ import org.springframework.stereotype.Component;
 import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
-import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
-public class ViewthreadTidPagePidLinkFixer extends StringFixer<LinkFixResult> {
-  private final static Logger LOGGER = Logger.getLogger(ViewthreadTidPagePidLinkFixer.class);
+public class ViewthreadTidPagePidLinkFixer extends LinkFixer {
+  private final static Logger LOGGER = Logger.getLogger("vtech.xmb.grabber.db.services.fixers.links.BrokenLinksLogger");
 
   @Autowired
   private MybbPostsRepository mybbPostsRepository;
-  @Value("${xmb.forum.links.prefix}")
-  private String xmbForumLinksPrefix;
-  @Value("${mybb.forum.links.prefix}")
-  private String mybbForumLinksPrefix;
+  
 
-  @Override
-  public LinkFixResult fix(final String textToFix) throws ParseException {
+  public LinkFixResult fix(final String textToFix, MybbPost mybbPost) {
     LinkFixResult fixResult = new LinkFixResult();
     String result = textToFix;
 
@@ -42,7 +36,7 @@ public class ViewthreadTidPagePidLinkFixer extends StringFixer<LinkFixResult> {
 
       if (mybbLinkAsString == null) {
         mybbLinkAsString = createMybbLink(0);
-        LOGGER.warn(String.format("XMB post link converted to null: %s -> %s", xmbLinkAsString, mybbLinkAsString));
+        LOGGER.warn(getBrokenLinkeMessage(mybbPost, xmbLinkAsString, mybbLinkAsString));
         fixResult.setHasInvalidLinks(true);
       }
 

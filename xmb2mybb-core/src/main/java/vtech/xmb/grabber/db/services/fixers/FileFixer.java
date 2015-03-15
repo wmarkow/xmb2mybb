@@ -1,6 +1,5 @@
 package vtech.xmb.grabber.db.services.fixers;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -15,16 +14,15 @@ import vtech.xmb.grabber.db.mybb.entities.MybbAttachment;
 import vtech.xmb.grabber.db.mybb.repositories.MybbAttachmentsRepository;
 
 @Component
-public class FileFixer extends StringFixer<FixResult> {
+public class FileFixer {
   private final static Logger LOGGER = Logger.getLogger(FileFixer.class);
 
   @Autowired
   private MybbAttachmentsRepository mybbAttachmentsRepository;
 
-  @Override
-  public FixResult fix(final String textToFix) throws ParseException {
+  public FixResult fix(final String textToFix, long mybbPid, long xmbPid) {
+    FixResult fixResult = new FixResult();
     String result = textToFix;
-    boolean fixed = false;
 
     Pattern pattern = Pattern.compile("\\[file.*?\\].*?\\[/file\\]");
     Matcher matcher = pattern.matcher(result);
@@ -33,34 +31,31 @@ public class FileFixer extends StringFixer<FixResult> {
 
     while (matcher.find()) {
       final String fileAsString = matcher.group();
-      final String attachmentAsString = replaceFileWithAttachment(fileAsString);
-
-      if (attachmentAsString == null) {
-        LOGGER.warn(String.format("Attachment %s will not be fixed as can not map it to MyBB Attachment", fileAsString));
-
-        continue;
-      }
+      final String attachmentAsString = replaceFileWithAttachment(fileAsString, mybbPid, xmbPid);
 
       files.put(fileAsString, attachmentAsString);
     }
 
     for (String file : files.keySet()) {
       result = result.replace(file, files.get(file));
-      fixed = true;
+      fixResult.setFixRequired(true);
     }
 
-    FixResult fixResult = new FixResult();
     fixResult.setFixedText(result);
-    fixResult.setFixRequired(fixed);
+    
     return fixResult;
   }
 
-  private String replaceFileWithAttachment(String fileAsString) {
+  private String replaceFileWithAttachment(String fileAsString, long mybbPid, long xmbPid) {
     final long xmbAttachmentId = Long.valueOf(fileAsString.replace("[file]", "").replace("[/file]", "").trim());
 
     MybbAttachment mybbAttachment = mybbAttachmentsRepository.findByXmbAid(xmbAttachmentId);
     if (mybbAttachment == null) {
-      return null;
+      LOGGER.warn(String.format(
+          "MyBB post with pid=%s and xmbpid=%s contains reference to non existing XMB file/attachment (%s). Will replace it with '[attachment=0]'", mybbPid,
+          xmbPid, fileAsString));
+
+      return "[attachment=0]";
     }
 
     return String.format("[attachment=%s]", mybbAttachment.aid);

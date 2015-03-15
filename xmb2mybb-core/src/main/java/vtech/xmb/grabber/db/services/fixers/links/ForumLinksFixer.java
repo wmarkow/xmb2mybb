@@ -1,6 +1,5 @@
 package vtech.xmb.grabber.db.services.fixers.links;
 
-import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,13 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
+import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbAttachmentsRepository;
-import vtech.xmb.grabber.db.services.PostsFixerService;
-import vtech.xmb.grabber.db.services.fixers.StringFixer;
 
 @Component
-public class ForumLinksFixer extends StringFixer<LinkFixResult> {
-  private final static Logger POST_FIXER_SERVICE_LOGGER = Logger.getLogger(PostsFixerService.class);
+public class ForumLinksFixer {
+  private final static Logger LINKS_TO_FIX_LOGGER = Logger.getLogger("vtech.xmb.grabber.db.services.fixers.links.LinksToFixLogger");
 
   @Autowired
   private MybbAttachmentsRepository mybbAttachmentsRepository;
@@ -29,11 +27,15 @@ public class ForumLinksFixer extends StringFixer<LinkFixResult> {
   @Value("${xmb.forum.links.prefix}")
   private String xmbForumLinksPrefix;
 
-  @Override
-  public LinkFixResult fix(final String textToFix) throws ParseException {
-    LinkFixResult fixResult1 = viewthreadTidPagePidLinkFixer.fix(textToFix);
-    LinkFixResult fixResult2 = viewthreadTidLinkFixer.fix(fixResult1.getFixedText());
-    LinkFixResult fixResult3 = forumdisplayLinkFixer.fix(fixResult2.getFixedText());
+  public LinkFixResult fix(final String textToFix, MybbPost mybbPost) {
+    LinkFixResult fixResult1 = viewthreadTidPagePidLinkFixer.fix(textToFix, mybbPost);
+    LinkFixResult fixResult2 = viewthreadTidLinkFixer.fix(fixResult1.getFixedText(), mybbPost);
+    LinkFixResult fixResult3 = forumdisplayLinkFixer.fix(fixResult2.getFixedText(), mybbPost);
+
+    LinkFixResult result = new LinkFixResult();
+    result.setFixedText(fixResult3.getFixedText());
+    result.setFixRequired(fixResult1.isFixRequired() | fixResult2.isFixRequired() | fixResult3.isFixRequired());
+    result.setHasInvalidLinks(fixResult1.isHasInvalidLinks() | fixResult2.isHasInvalidLinks() | fixResult3.isHasInvalidLinks());
 
     Pattern pattern = Pattern.compile(xmbForumLinksPrefix);
     Matcher matcher = pattern.matcher(fixResult3.getFixedText());
@@ -41,13 +43,8 @@ public class ForumLinksFixer extends StringFixer<LinkFixResult> {
     while (matcher.find()) {
       final String biggerLinkAsString = fixResult3.getFixedText().substring(matcher.start(), Math.min(fixResult3.getFixedText().length(), matcher.end() + 100));
 
-      POST_FIXER_SERVICE_LOGGER.warn(String.format("Link to fix is something like %s", biggerLinkAsString));
+      LINKS_TO_FIX_LOGGER.warn(String.format("Do not know how to fix link like %s", biggerLinkAsString));
     }
-
-    LinkFixResult result = new LinkFixResult();
-    result.setFixedText(fixResult3.getFixedText());
-    result.setFixRequired(fixResult1.isFixRequired() | fixResult2.isFixRequired() | fixResult3.isFixRequired());
-    result.setHasInvalidLinks(fixResult1.isHasInvalidLinks() | fixResult2.isHasInvalidLinks() | fixResult3.isHasInvalidLinks());
 
     return result;
   }

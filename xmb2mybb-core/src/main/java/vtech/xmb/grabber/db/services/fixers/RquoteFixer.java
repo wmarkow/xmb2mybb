@@ -17,16 +17,15 @@ import vtech.xmb.grabber.db.domain.fixers.XmbQuote2MybbQuote;
 import vtech.xmb.grabber.db.domain.fixers.XmbQuoteParser;
 
 @Component
-public class RquoteFixer extends StringFixer<FixResult> {
+public class RquoteFixer {
   private final static Logger LOGGER = Logger.getLogger(RquoteFixer.class);
 
   @Autowired
   private XmbQuote2MybbQuote xmbQuote2MybbQuote;
 
-  @Override
-  public FixResult fix(final String textToFix) throws ParseException {
+  public FixResult fix(final String textToFix, long mybbPid, long xmbPid) {
+    FixResult fixResult = new FixResult();
     String result = textToFix;
-    boolean fixed = false;
 
     Pattern pattern = Pattern.compile("\\[rquote.*?\\]");
     Matcher matcher = pattern.matcher(result);
@@ -35,22 +34,24 @@ public class RquoteFixer extends StringFixer<FixResult> {
 
     while (matcher.find()) {
       final String rquoteAsString = matcher.group();
-      final XmbQuote xmbQuote = XmbQuoteParser.parse(rquoteAsString);
-      final MybbQuote mybbQuote = xmbQuote2MybbQuote.xmbRquote2MybbQuote(xmbQuote);
+      try {
+        final XmbQuote xmbQuote = XmbQuoteParser.parse(rquoteAsString);
+        final MybbQuote mybbQuote = xmbQuote2MybbQuote.xmbRquote2MybbQuote(xmbQuote);
 
-      matches.add(new Rquote2Quote(xmbQuote, mybbQuote));
+        matches.add(new Rquote2Quote(xmbQuote, mybbQuote));
+      } catch (ParseException e) {
+        LOGGER.warn(String.format("MyBB post with pid=%s and xmbpid=%s contains invalid XMB rquote (%s).", mybbPid, xmbPid, rquoteAsString));
+      }
     }
 
     for (Rquote2Quote match : matches) {
       result = result.replace(match.getXmbQuote().getOriginalString(), match.getMybbQuote().toString());
-      fixed = true;
+      fixResult.setFixRequired(true);
     }
 
     result = result.replaceAll("\\[/rquote\\]", "\\[/quote\\]");
-
-    FixResult fixResult = new FixResult();
     fixResult.setFixedText(result);
-    fixResult.setFixRequired(fixed);
+
     return fixResult;
   }
 

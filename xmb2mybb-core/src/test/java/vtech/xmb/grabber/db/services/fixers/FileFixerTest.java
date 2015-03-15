@@ -44,7 +44,7 @@ public class FileFixerTest {
     Mockito.when(mybbAttachmentsRepository.findByXmbAid(Mockito.eq(1500L))).thenReturn(attachment1);
     Mockito.when(mybbAttachmentsRepository.findByXmbAid(Mockito.eq(2900L))).thenReturn(attachment2);
 
-    FixResult fixResult = fixer.fix(test);
+    FixResult fixResult = fixer.fix(test, 0, 0);
     
     assertTrue(fixResult.isFixRequired());
     assertEquals(fixed, fixResult.getFixedText());

@@ -1,6 +1,5 @@
 package vtech.xmb.grabber.db.services.fixers.links;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -12,24 +11,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.cache.MybbForumsCache;
-import vtech.xmb.grabber.db.domain.fixers.FixResult;
 import vtech.xmb.grabber.db.domain.fixers.LinkFixResult;
 import vtech.xmb.grabber.db.mybb.entities.MybbForum;
-import vtech.xmb.grabber.db.services.fixers.StringFixer;
+import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 
 @Component
-public class ForumdisplayLinkFixer extends StringFixer<LinkFixResult> {
-  private final static Logger LOGGER = Logger.getLogger(ForumdisplayLinkFixer.class);
+public class ForumdisplayLinkFixer extends LinkFixer {
+  private final static Logger LOGGER = Logger.getLogger("vtech.xmb.grabber.db.services.fixers.links.BrokenLinksLogger");
 
   @Autowired
   private MybbForumsCache mybbForumsCache;
-  @Value("${xmb.forum.links.prefix}")
-  private String xmbForumLinksPrefix;
-  @Value("${mybb.forum.links.prefix}")
-  private String mybbForumLinksPrefix;
+//  @Value("${xmb.forum.links.prefix}")
+//  private String xmbForumLinksPrefix;
+//  @Value("${mybb.forum.links.prefix}")
+//  private String mybbForumLinksPrefix;
 
-  @Override
-  public LinkFixResult fix(String textToFix) throws ParseException {
+  public LinkFixResult fix(String textToFix, MybbPost mybbPost) {
     LinkFixResult fixResult = new LinkFixResult();
     String result = textToFix;
 
@@ -42,12 +39,12 @@ public class ForumdisplayLinkFixer extends StringFixer<LinkFixResult> {
       final String xmbLinkAsString = matcher.group();
       String mybbLinkAsString = convertXmbToMybb(xmbLinkAsString);
 
-      if(mybbLinkAsString == null){
+      if (mybbLinkAsString == null) {
         mybbLinkAsString = createMybbLink(0);
-        LOGGER.warn(String.format("XMB forum link converted to null: %s -> %s", xmbLinkAsString, mybbLinkAsString));
+        LOGGER.warn(getBrokenLinkeMessage(mybbPost, xmbLinkAsString, mybbLinkAsString));
         fixResult.setHasInvalidLinks(true);
       }
-      
+
       toReplace.put(xmbLinkAsString, mybbLinkAsString);
     }
 
@@ -57,7 +54,7 @@ public class ForumdisplayLinkFixer extends StringFixer<LinkFixResult> {
     }
 
     fixResult.setFixedText(result);
-    
+
     return fixResult;
   }
 

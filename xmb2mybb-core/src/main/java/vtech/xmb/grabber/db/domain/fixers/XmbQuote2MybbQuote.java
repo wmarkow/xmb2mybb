@@ -6,10 +6,11 @@ import org.springframework.stereotype.Component;
 
 import vtech.xmb.grabber.db.mybb.entities.MybbPost;
 import vtech.xmb.grabber.db.mybb.repositories.MybbPostsRepository;
+import vtech.xmb.grabber.db.services.fixers.RquoteFixer;
 
 @Component
 public class XmbQuote2MybbQuote {
-  private final static Logger LOGGER = Logger.getLogger(XmbQuote2MybbQuote.class);
+  private final static Logger LOGGER = Logger.getLogger(RquoteFixer.class);
 
   @Autowired
   private MybbPostsRepository mybbPostsRepository;

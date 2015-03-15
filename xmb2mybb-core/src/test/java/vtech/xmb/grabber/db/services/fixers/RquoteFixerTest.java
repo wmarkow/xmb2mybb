@@ -57,7 +57,7 @@ public class RquoteFixerTest {
     String nestedRquotes = FileUtils.readFileToString(new File("src/test/resources/fixers/nested_rquotes.txt"));
     String fixedNestedRquotes = FileUtils.readFileToString(new File("src/test/resources/fixers/nested_rquotes_fixed.txt"));
 
-    FixResult fixResult = fixer.fix(nestedRquotes);
+    FixResult fixResult = fixer.fix(nestedRquotes, 0, 0);
 
     assertTrue(fixResult.isFixRequired());
     assertEquals(fixedNestedRquotes, fixResult.getFixedText());

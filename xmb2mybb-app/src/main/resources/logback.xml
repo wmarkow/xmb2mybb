@@ -24,13 +24,6 @@
 		<file>migration-${bySecond}.log</file>
 	</appender>
 
-	<appender name="POST_FIXER_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
-		<encoder>
-			<pattern>${FILE_LOG_PATTERN}</pattern>
-		</encoder>
-		<file>migration-${bySecond}-post-fixer.log</file>
-	</appender>
-
 	<appender name="USERS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
@@ -58,28 +51,28 @@
 		</encoder>
 		<file>migration-${bySecond}-threads.log</file>
 	</appender>
-	
+
 	<appender name="POSTS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
 		<file>migration-${bySecond}-posts.log</file>
 	</appender>
-	
+
 	<appender name="POLLS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
 		<file>migration-${bySecond}-polls.log</file>
 	</appender>
-	
+
 	<appender name="PMS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
 		</encoder>
 		<file>migration-${bySecond}-pms.log</file>
 	</appender>
-	
+
 	<appender name="ATTACHMENTS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
 			<pattern>${FILE_LOG_PATTERN}</pattern>
@@ -87,15 +80,38 @@
 		<file>migration-${bySecond}-attachments.log</file>
 	</appender>
 
+	<appender name="RQUOTE_FIXER_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-post-content-rquote-fixer.log</file>
+	</appender>
+
+	<appender name="FILE_FIXER_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-post-content-file-fixer.log</file>
+	</appender>
+
+	<appender name="LINKS_TO_FIX_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-post-content-links-to-fix.log</file>
+	</appender>
+
+	<appender name="BROKEN_LINKS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-post-content-broken-links.log</file>
+	</appender>
+
 	<root level="INFO">
 		<appender-ref ref="MAIN_FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>
-
-	<logger name="vtech.xmb.grabber.db.services.PostsFixerService"
-		level="INFO" additivity="false">
-		<appender-ref ref="POST_FIXER_SERVICE_APPENDER" />
-	</logger>
 
 	<logger name="vtech.xmb.grabber.db.services.MigrateUsers" level="INFO"
 		additivity="false">
@@ -116,25 +132,45 @@
 		level="INFO" additivity="false">
 		<appender-ref ref="THREADS_SERVICE_APPENDER" />
 	</logger>
-	
-	<logger name="vtech.xmb.grabber.db.services.MigratePosts"
-		level="INFO" additivity="false">
+
+	<logger name="vtech.xmb.grabber.db.services.MigratePosts" level="INFO"
+		additivity="false">
 		<appender-ref ref="POSTS_SERVICE_APPENDER" />
 	</logger>
-	
-	<logger name="vtech.xmb.grabber.db.services.MigratePolls"
-		level="INFO" additivity="false">
+
+	<logger name="vtech.xmb.grabber.db.services.MigratePolls" level="INFO"
+		additivity="false">
 		<appender-ref ref="POLLS_SERVICE_APPENDER" />
 	</logger>
-	
+
 	<logger name="vtech.xmb.grabber.db.services.MigratePrivateMessages"
 		level="INFO" additivity="false">
 		<appender-ref ref="PMS_SERVICE_APPENDER" />
 	</logger>
-	
+
 	<logger name="vtech.xmb.grabber.db.services.MigrateAttachments"
 		level="INFO" additivity="false">
 		<appender-ref ref="ATTACHMENTS_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.fixers.RquoteFixer"
+		level="INFO" additivity="false">
+		<appender-ref ref="RQUOTE_FIXER_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.fixers.FileFixer"
+		level="INFO" additivity="false">
+		<appender-ref ref="FILE_FIXER_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.fixers.links.LinksToFixLogger"
+		level="INFO" additivity="false">
+		<appender-ref ref="LINKS_TO_FIX_SERVICE_APPENDER" />
+	</logger>
+
+	<logger name="vtech.xmb.grabber.db.services.fixers.links.BrokenLinksLogger"
+		level="INFO" additivity="false">
+		<appender-ref ref="BROKEN_LINKS_SERVICE_APPENDER" />
 	</logger>
 
 </configuration>
