@@ -27,13 +27,13 @@ public class MigrateAll {
 
   public void migrate() {
     migrateUsers.migrateUsers();
-//    migrateForums.migrateForums();
-//    migrateModeratorPermissions.migrateModeratorPermissions();
-//    migrateThreads.migrateThreads();
-//    migratePosts.migratePosts();
-//    migratePolls.migratePolls();
-//    migratePrivateMessages.migrateU2Us();
-//    migrateAttachments.migrateAttachments();
-//    postsFixerService.fixPostsContent();
+    migrateForums.migrateForums();
+    migrateModeratorPermissions.migrateModeratorPermissions();
+    migrateThreads.migrateThreads();
+    migratePosts.migratePosts();
+    migratePolls.migratePolls();
+    migratePrivateMessages.migrateU2Us();
+    migrateAttachments.migrateAttachments();
+    postsFixerService.fixPostsContent();
   }
 }

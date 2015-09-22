@@ -1,5 +1,7 @@
 package vtech.xmb.grabber.db.services;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -8,7 +10,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import vtech.xmb.grabber.db.cache.MybbUsersCache;
 import vtech.xmb.grabber.db.domain.ProgressCalculator;
@@ -33,6 +37,24 @@ public class MigrateUsers {
   @Autowired
   private MybbUsersCache mybbUsersCache;
 
+  @Value("${xmb.forum.domain}")
+  private String xmbForumDomain;
+  @Value("${mybb.forum.domain}")
+  private String mybbForumDomain;
+  @Value("${xmb.forum.avatars.path}")
+  private String xmbForumAvatarsPath;
+  @Value("${mybb.forum.avatars.path}")
+  private String mybbForumAvatarsPath;
+
+  @Value("${xmb.avatars.path}")
+  private String xmbAvatarsPath;
+  @Value("${mybb.avatars.path}")
+  private String mybbAvatarsPath;
+
+  private int xmbAvatarsCount = 0;
+  private int nativeInvalidXmbAvatarsCount = 0;
+  private int otherAvatarsCount = 0;
+  
   public void migrateUsers() {
     LOGGER.info("Users migration started.");
     ROOT_LOGGER.info("Users migration started.");
@@ -40,17 +62,19 @@ public class MigrateUsers {
     List<XmbMember> xmbMembers = (List<XmbMember>) xmbMembersRepository.findAll();
 
     ProgressCalculator progressCalc = new ProgressCalculator(xmbMembers.size());
-    
+
     LOGGER.info(String.format("Found %s users to migrate from XMB.", xmbMembers.size()));
     ROOT_LOGGER.info(String.format("Found %s users to migrate from XMB.", xmbMembers.size()));
 
-    for (XmbMember xmbMember : xmbMembers) { 
+    copyAvatars();
+
+    for (XmbMember xmbMember : xmbMembers) {
       MybbUser mybbUser = new MybbUser();
 
       applyDefaults(mybbUser);
       updateStatus(mybbUser, xmbMember.status);
       mybbUser.aim = xmbMember.aim;
-      mybbUser.avatar = xmbMember.avatar;
+      mybbUser.avatar = fixAvatarUrlIfNeeded(xmbMember.avatar);
       mybbUser.birthday = deriveMybbBirthDate(xmbMember.bday);
       mybbUser.email = xmbMember.email;
       if (xmbMember.icq.length() < 10) {
@@ -95,7 +119,7 @@ public class MigrateUsers {
       }
 
       progressCalc.hit();
-      
+
       progressCalc.logProgress(LOGGER, ROOT_LOGGER);
     }
 
@@ -103,6 +127,9 @@ public class MigrateUsers {
 
     LOGGER.info(String.format("Found %s users in MyBB after migration.", mybbUsersCache.getSize()));
     ROOT_LOGGER.info(String.format("Found %s users in MyBB after migration.", mybbUsersCache.getSize()));
+    LOGGER.info(String.format("Migrated %s XMB native avatars with files.", xmbAvatarsCount));
+    LOGGER.info(String.format("Found    %s XMB native invalid (not migrated) avatars with files.", nativeInvalidXmbAvatarsCount));
+    LOGGER.info(String.format("Migrated %s non-XMB avatars (external links).", otherAvatarsCount));
     LOGGER.info("Users migration finished.");
     ROOT_LOGGER.info("Users migration finished.");
   }
@@ -251,5 +278,45 @@ public class MigrateUsers {
     mybbUser.showvideos = 1;
 
     mybbUser.classicpostbit = 1;
+  }
+
+  private String fixAvatarUrlIfNeeded(String xmbAvatarUrl) {
+    if (xmbAvatarUrl == null) {
+      return null;
+    }
+
+    if (xmbAvatarUrl.trim().isEmpty()) {
+      return "";
+    }
+
+    xmbAvatarUrl = xmbAvatarUrl.trim().toLowerCase();
+
+    if (xmbAvatarUrl.contains(xmbForumDomain) && xmbAvatarUrl.contains(xmbForumAvatarsPath)) {
+      xmbAvatarsCount++;
+      return xmbAvatarUrl.replace(xmbForumDomain, mybbForumDomain).replace(xmbForumAvatarsPath, mybbForumAvatarsPath);
+    }
+
+    if (xmbAvatarUrl.contains(xmbForumDomain) && !xmbAvatarUrl.contains(xmbForumAvatarsPath)) {
+      // incorrect native attachment
+      nativeInvalidXmbAvatarsCount ++;
+      LOGGER.warn(String.format("Invalid format of XMB native avatar URL: %s. Avatar link will not be migrated.", xmbAvatarUrl));
+      return "";
+    }
+
+    otherAvatarsCount ++;
+    return xmbAvatarUrl;
+  }
+
+  private void copyAvatars() {
+    File xmbAvatarsDirFile = new File(xmbAvatarsPath);
+    File mybbAvatarsDirFile = new File(mybbAvatarsPath);
+
+    mybbAvatarsDirFile.mkdirs();
+
+    try {
+      FileSystemUtils.copyRecursively(xmbAvatarsDirFile, mybbAvatarsDirFile);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
