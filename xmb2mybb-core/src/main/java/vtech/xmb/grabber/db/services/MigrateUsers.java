@@ -108,12 +108,13 @@ public class MigrateUsers {
 
       MybbUser savedUser = mybbUsersRepository.save(mybbUser);
 
-      if (!isNullOrEmpty(xmbMember.bio) || !isNullOrEmpty(xmbMember.location)) {
+      if (!isNullOrEmpty(xmbMember.bio) || !isNullOrEmpty(xmbMember.location) || !isNullOrEmpty(xmbMember.mood)) {
         MybbUserFields mybbUserFields = new MybbUserFields();
         mybbUserFields.ufid = savedUser.uid;
         mybbUserFields.location = xmbMember.location;
         mybbUserFields.bio = xmbMember.bio;
         mybbUserFields.sex = "Undisclosed";
+        mybbUserFields.mood = xmbMember.mood;
 
         mybbUserFieldsRepository.save(mybbUserFields);
       }

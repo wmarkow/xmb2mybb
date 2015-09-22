@@ -22,4 +22,7 @@ public class MybbUserFields {
   
   @Column(name = "fid3")
   public String sex;
+  
+  @Column(name = "fid4")
+  public String mood;
 }
