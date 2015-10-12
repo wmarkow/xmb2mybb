@@ -30,6 +30,13 @@
 		</encoder>
 		<file>migration-${bySecond}-users.log</file>
 	</appender>
+	
+	<appender name="SMILIES_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-smilies.log</file>
+	</appender>
 
 	<appender name="FORUMS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
@@ -116,6 +123,11 @@
 	<logger name="vtech.xmb.grabber.db.services.MigrateUsers" level="INFO"
 		additivity="false">
 		<appender-ref ref="USERS_SERVICE_APPENDER" />
+	</logger>
+	
+	<logger name="vtech.xmb.grabber.db.services.MigrateSmilies" level="INFO"
+		additivity="false">
+		<appender-ref ref="SMILIES_SERVICE_APPENDER" />
 	</logger>
 
 	<logger name="vtech.xmb.grabber.db.services.MigrateForums"

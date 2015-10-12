@@ -8,6 +8,8 @@ public class MigrateAll {
   @Autowired
   private MigrateUsers migrateUsers;
   @Autowired
+  private MigrateSmilies migrateSmilies;
+  @Autowired
   private MigrateForums migrateForums;
   @Autowired
   private MigrateThreads migrateThreads;
@@ -27,6 +29,7 @@ public class MigrateAll {
 
   public void migrate() {
     migrateUsers.migrateUsers();
+    migrateSmilies.migrateSmilies();
     migrateForums.migrateForums();
     migrateModeratorPermissions.migrateModeratorPermissions();
     migrateThreads.migrateThreads();
