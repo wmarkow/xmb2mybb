@@ -42,7 +42,7 @@ public class MigrateSmilies {
     copySmilies();
 
     int counter = 0;
-    int index = 1;
+    int index = 1000;
     for (XmbSmiley xmbSmiley : xmbSmilies) {
       if (xmbSmiley.type == null) {
         continue;
