@@ -24,6 +24,9 @@ public class ForumLinksFixer {
   private ViewthreadTidLinkFixer viewthreadTidLinkFixer;
   @Autowired
   private ForumdisplayLinkFixer forumdisplayLinkFixer;
+  @Autowired
+  private ForumRulesLinkFixer forumRulesLinkFixer;
+  
   @Value("${xmb.forum.links.prefix}")
   private String xmbForumLinksPrefix;
 
@@ -31,17 +34,20 @@ public class ForumLinksFixer {
     LinkFixResult fixResult1 = viewthreadTidPagePidLinkFixer.fix(textToFix, mybbPost);
     LinkFixResult fixResult2 = viewthreadTidLinkFixer.fix(fixResult1.getFixedText(), mybbPost);
     LinkFixResult fixResult3 = forumdisplayLinkFixer.fix(fixResult2.getFixedText(), mybbPost);
+    LinkFixResult fixResult4 = forumRulesLinkFixer.fix(fixResult3.getFixedText(), mybbPost);
 
+    LinkFixResult fixResult = fixResult4;
+    
     LinkFixResult result = new LinkFixResult();
-    result.setFixedText(fixResult3.getFixedText());
-    result.setFixRequired(fixResult1.isFixRequired() | fixResult2.isFixRequired() | fixResult3.isFixRequired());
-    result.setHasInvalidLinks(fixResult1.isHasInvalidLinks() | fixResult2.isHasInvalidLinks() | fixResult3.isHasInvalidLinks());
+    result.setFixedText(fixResult.getFixedText());
+    result.setFixRequired(fixResult1.isFixRequired() | fixResult2.isFixRequired() | fixResult3.isFixRequired() | fixResult4.isFixRequired());
+    result.setHasInvalidLinks(fixResult1.isHasInvalidLinks() | fixResult2.isHasInvalidLinks() | fixResult3.isHasInvalidLinks() | fixResult4.isHasInvalidLinks());
 
     Pattern pattern = Pattern.compile(xmbForumLinksPrefix);
-    Matcher matcher = pattern.matcher(fixResult3.getFixedText());
+    Matcher matcher = pattern.matcher(fixResult.getFixedText());
 
     while (matcher.find()) {
-      final String biggerLinkAsString = fixResult3.getFixedText().substring(matcher.start(), Math.min(fixResult3.getFixedText().length(), matcher.end() + 100));
+      final String biggerLinkAsString = fixResult.getFixedText().substring(matcher.start(), Math.min(fixResult.getFixedText().length(), matcher.end() + 100));
 
       LINKS_TO_FIX_LOGGER.warn(String.format("Do not know how to fix link like %s", biggerLinkAsString));
     }

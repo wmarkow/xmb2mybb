@@ -114,6 +114,13 @@
 		</encoder>
 		<file>migration-${bySecond}-post-content-broken-links.log</file>
 	</appender>
+	
+	<appender name="LINKS_FIXED_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-post-content-links-fixed.log</file>
+	</appender>
 
 	<root level="INFO">
 		<appender-ref ref="MAIN_FILE" />
@@ -183,6 +190,11 @@
 	<logger name="vtech.xmb.grabber.db.services.fixers.links.BrokenLinksLogger"
 		level="INFO" additivity="false">
 		<appender-ref ref="BROKEN_LINKS_SERVICE_APPENDER" />
+	</logger>
+	
+	<logger name="vtech.xmb.grabber.db.services.fixers.links.ForumRulesLinkFixer"
+		level="INFO" additivity="false">
+		<appender-ref ref="LINKS_FIXED_SERVICE_APPENDER" />
 	</logger>
 
 </configuration>
