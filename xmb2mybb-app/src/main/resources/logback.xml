@@ -58,6 +58,13 @@
 		</encoder>
 		<file>migration-${bySecond}-threads.log</file>
 	</appender>
+	
+	<appender name="THREADS_SUBSCRIBTIONS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>${FILE_LOG_PATTERN}</pattern>
+		</encoder>
+		<file>migration-${bySecond}-threads-subscriptions.log</file>
+	</appender>
 
 	<appender name="POSTS_SERVICE_APPENDER" class="ch.qos.logback.core.FileAppender">
 		<encoder>
@@ -150,6 +157,11 @@
 	<logger name="vtech.xmb.grabber.db.services.MigrateThreads"
 		level="INFO" additivity="false">
 		<appender-ref ref="THREADS_SERVICE_APPENDER" />
+	</logger>
+	
+	<logger name="vtech.xmb.grabber.db.services.MigrateForumSubscriptions"
+		level="INFO" additivity="false">
+		<appender-ref ref="THREADS_SUBSCRIBTIONS_SERVICE_APPENDER" />
 	</logger>
 
 	<logger name="vtech.xmb.grabber.db.services.MigratePosts" level="INFO"

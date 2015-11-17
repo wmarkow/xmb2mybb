@@ -14,6 +14,8 @@ public class MigrateAll {
   @Autowired
   private MigrateThreads migrateThreads;
   @Autowired
+  private MigrateForumSubscriptions migrateForumSubscriptions;
+  @Autowired
   private MigratePosts migratePosts;
   @Autowired
   private MigratePolls migratePolls;
@@ -33,6 +35,7 @@ public class MigrateAll {
     migrateForums.migrateForums();
     migrateModeratorPermissions.migrateModeratorPermissions();
     migrateThreads.migrateThreads();
+    migrateForumSubscriptions.migrate();
     migratePosts.migratePosts();
     migratePolls.migratePolls();
     migratePrivateMessages.migrateU2Us();
