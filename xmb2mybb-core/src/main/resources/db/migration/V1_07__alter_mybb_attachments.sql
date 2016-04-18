@@ -1,0 +1,1 @@
+ALTER TABLE mybb_attachments ADD xmb_aid int(10);
