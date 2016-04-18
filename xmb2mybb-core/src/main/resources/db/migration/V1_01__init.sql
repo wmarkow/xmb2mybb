@@ -2346,7 +2346,7 @@ CREATE TABLE `mybb_users` (
 
 LOCK TABLES `mybb_users` WRITE;
 /*!40000 ALTER TABLE `mybb_users` DISABLE KEYS */;
-INSERT INTO `mybb_users` VALUES (1,'mybbadmin','e0381aa815ad5ee3a769ade8b8a0a592','fnM6A8z5','1kUcAG0FyqQ8xGl53jtRlGqCempMX9C4d8VvddsPLOMNk7g6DX','witold.a.markowski@gmail.com',0,0,'','','0',4,'',0,'',1444634937,1444634943,1444634937,0,'','','','','','','','all','',1,0,0,0,1,0,1,1,1,0,'',1,1,1,1,1,1,0,0,0,'','','0',0,0,'','',0,0,0,'','','','',0,0,0,'\0\0','\0\0','',6,1,0,0,0,0,0,0,0,0,0,0,0,1,'',0);
+INSERT INTO `mybb_users` VALUES (1,'mybbadmin','16d7a4fca7442dda3ad93c9a726597e4','fnM6A8z5','1kUcAG0FyqQ8xGl53jtRlGqCempMX9C4d8VvddsPLOMNk7g6DX','witold.a.markowski@gmail.com',0,0,'','','0',4,'',0,'',1444634937,1444634943,1444634937,0,'','','','','','','','all','',1,0,0,0,1,0,1,1,1,0,'',1,1,1,1,1,1,0,0,0,'','','0',0,0,'','',0,0,0,'','','','',0,0,0,'\0\0','\0\0','',6,1,0,0,0,0,0,0,0,0,0,0,0,1,'',0);
 /*!40000 ALTER TABLE `mybb_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
